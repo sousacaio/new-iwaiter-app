@@ -151,8 +151,8 @@ const styles = StyleSheet.create({
 });
 const mapStateToProps = (state) => {
     return {
-        items: state.items,
-        total: state.total
+        items: state.cart.items,
+        total: state.cart.total
     }
 }
 const mapDispatchToProps = (dispatch) => {

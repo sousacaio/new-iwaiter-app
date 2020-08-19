@@ -15,9 +15,11 @@ import cartReducer from './src/reducers/cartReducer';
 import { Provider } from 'react-redux';
 import { createStore } from 'redux'
 import reactotron from './src/config/ReactotronConfig';
-const store = createStore(cartReducer,  reactotron.createEnhancer())
+import rootReducer from './src/reducers/index';
 
-const App: () => React$Node = () => {
+const store = createStore(rootReducer, reactotron.createEnhancer())
+
+const App = () => {
   return (
     <AuthProvider>
       <Provider store={store}>

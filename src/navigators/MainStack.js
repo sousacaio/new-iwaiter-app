@@ -3,7 +3,8 @@ import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { useAuth } from '../services/authContext';
-import Home from '../screens/Home';
+import Home from '../screens/Home/Home';
+import Acount from '../screens/Acount/Acount';
 import Login from '../screens/Login';
 import Scan from '../screens/Scan';
 import Catalog from '../screens/Catalog';
@@ -35,15 +36,7 @@ function ScanStack() {
     );
 }
 
-const homeStack = () => {
-    return (
-        <homeStackNav.Navigator
-            screenOptions={{
-                headerShown: false
-            }}>
-            <homeStackNav.Screen name="HomeScreen" component={HomeScreen} />
-        </homeStackNav.Navigator>)
-}
+
 
 
 export default function InitialStack() {
@@ -66,20 +59,14 @@ export default function InitialStack() {
             {status === 'signOut' ? null : (
                 <Tab.Screen name="Comanda" component={ScanStack} />
             )}
-            {status !== 'signOut' ? null : (
-                <Tab.Screen name="Comanda2"
-                    options={{ tabBarVisible: false }}
-                    component={ScanStack} />
-            )}
-
-
+        
             {status === 'signOut' ? (
                 <Tab.Screen
                     name="Login"
                     component={Login}
                 />
             ) : (
-                    <Tab.Screen name="Conta" component={Login} />
+                    <Tab.Screen name="Conta" component={Acount} />
                 )}
         </Tab.Navigator>
     )

@@ -11,9 +11,11 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 const { width, height } = Dimensions.get('window')
 import api from '../../services/axios';
 import AsyncStorage from '@react-native-community/async-storage';
-import { connect } from 'react-redux';
-
+import { connect, useDispatch, useSelector } from 'react-redux';
+import { storeOrderId } from '../../actions/cartActions';
 const CheckoutModal = ({ modalVisible, total, setModalVisible, items, clearTheCart, storeNewOrders }) => {
+    const dispatch = useDispatch();
+    const orderIdRedux = useSelector(state => state.cart.orderId)
     const [customer, setCustomer] = useState('')
     const [establishment, setEstablishment] = useState('')
     const [point, setPoint] = useState('')
@@ -38,7 +40,9 @@ const CheckoutModal = ({ modalVisible, total, setModalVisible, items, clearTheCa
         setIsFirstOrder(await AsyncStorage.getItem('isFirstOrder'));
         setOrderId(await AsyncStorage.getItem('order_id'));
     }
-
+    const dispatchOrder = (data) => {
+        dispatch(storeOrderId(data))
+    }
     useEffect(() => {
         loadCredentials();
     }, [modalVisible])
@@ -51,8 +55,11 @@ const CheckoutModal = ({ modalVisible, total, setModalVisible, items, clearTheCa
             await AsyncStorage.setItem('isFirstOrder', 'false')
             const { orders, _id } = desambiguation;
             Reactotron.log('id da order criada:' + '\n' + _id)
+            console.log('id da order criada:' + '\n' + _id)
             await AsyncStorage.setItem('order_id', _id);
             console.log('confirm:' + await AsyncStorage.getItem('order_id'));
+            dispatchOrder(_id)
+            console.log('no redux:' + orderIdRedux)
             setOrderId(_id)
             setModalVisible(false)
             storeNewOrders(orders);
@@ -62,6 +69,7 @@ const CheckoutModal = ({ modalVisible, total, setModalVisible, items, clearTheCa
                 ToastAndroid.LONG,
                 ToastAndroid.BOTTOM,
             );
+
         }
     }
     const transformIdItems = (itemsFromCart) => {
@@ -73,12 +81,12 @@ const CheckoutModal = ({ modalVisible, total, setModalVisible, items, clearTheCa
         return newItemsFromCart;
     }
     const newRequest = async () => {
-        Reactotron.log('new request');
+        console.log('new request');
         const itemsCopy = items;
         const newItems = transformIdItems(itemsCopy);
         const response = await api.post(`orders/${orderId}/request`, newItems);
-        Reactotron.log('response')
-        Reactotron.log(response)
+        console.log('response')
+        console.log(response)
         const { data } = response;
         const { success } = data;
         const desambiguation = data.data;
@@ -102,7 +110,6 @@ const CheckoutModal = ({ modalVisible, total, setModalVisible, items, clearTheCa
             return 0;
         }
     });
-
     return (
         <Modal
             animationType="slide"

@@ -24,10 +24,10 @@ const Cart = (props) => {
     const [visibilityPaymentModal, setVisibilityPaymentModal] = useState(false);
     const [isFirstOrder, setIsFirstOrder] = useState('');
 
-    const ordered = useSelector(state => state.orderedItems)
-    const items = useSelector(state => state.addedItems)
-    const total = useSelector(state => state.total)
-    const totalCart = useSelector(state => state.totalCart)
+    const ordered = useSelector(state => state.cart.orderedItems)
+    const items = useSelector(state => state.cart.addedItems)
+    const total = useSelector(state => state.cart.total)
+    const totalCart = useSelector(state => state.cart.totalCart)
     const dispatch = useDispatch()
 
     const storeNewOrders = (orders) => {
@@ -155,6 +155,11 @@ const HasOrderedArea = (props) => {
         </View >)
 }
 const NoOrdersYetArea = (props) => {
+    async function deleteCredentials() {
+        await AsyncStorage.removeItem('order_id');
+        await AsyncStorage.removeItem('id_establishment');
+        await AsyncStorage.removeItem('id_point');
+    }
     return (
         <View style={styles.noOrdersYetContainer} >
             <View style={{ flex: 2 }}>
@@ -169,7 +174,7 @@ const NoOrdersYetArea = (props) => {
                 }
             </View>
             <View style={{ flex: 1 }} >
-                <TouchableOpacity style={styles.noOrdersYetButton} onPress={() => { props.setModalVisible(true) }} >
+                <TouchableOpacity style={styles.noOrdersYetButton} onPress={() => { deleteCredentials() }} >
                     <Text style={{ color: '#6200ee' }}>Sair</Text>
                 </TouchableOpacity>
             </View>

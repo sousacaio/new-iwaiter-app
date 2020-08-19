@@ -1,14 +1,59 @@
 import React, { useEffect, useState } from 'react';
 import {
-    Text, View, FlatList,
-    ScrollView,
-    Dimensions, Modal, StyleSheet,
-    Button, TouchableOpacity, ToastAndroid, RefreshControl
+    Text, View,
+    Dimensions, Modal,
+    StyleSheet, Alert
 } from 'react-native';
 const { width, height } = Dimensions.get('window');
 import IconButton from '../IconButton';
-import { connect } from 'react-redux'
+import { connect, useSelector } from 'react-redux'
+import api from '../../services/axios';
+import AsyncStorage from '@react-native-community/async-storage';
+import { useNavigation } from '@react-navigation/native';
+
 const PaymentModal = ({ visibilityPaymentModal, setVisibilityPaymentModal }) => {
+    const orderIdRedux = useSelector(state => state.cart.orderId)
+
+    const navigation = useNavigation();
+    async function deleteCredentials() {
+        await AsyncStorage.removeItem('order_id');
+        await AsyncStorage.removeItem('id_establishment');
+        await AsyncStorage.removeItem('id_point');
+    }
+    const endOrder = async (paymentMethod) => {
+        console.log('idorder:' + orderIdRedux);
+        console.log('paymentMethod:' + paymentMethod);
+        const response = await api.post(`orders/endOrder/${orderIdRedux}/${paymentMethod}`);
+        //console.log(`orders/endOrder/${orderIdRedux}/${paymentMethod}`)
+        console.log(response)
+        const { data: { data } } = response;
+        if (data) {
+            const { isClosed } = data;
+            if (isClosed === true) {
+                Alert.alert(
+                    "Pagamento",
+                    "Dirija-se ao caixa para efetuar o pagamento no método escolhido",
+                    [
+                        {
+                            text: "OK", onPress: () => {
+                                deleteCredentials()
+                                navigation.navigate('Home', {
+                                    screen: 'Conta'
+                                })
+                            }
+                        }
+                    ],
+                    { cancelable: false }
+                );
+
+
+            } else {
+
+            }
+        }
+    }
+
+
     return (
         <Modal
             animationType="slide"
@@ -29,21 +74,21 @@ const PaymentModal = ({ visibilityPaymentModal, setVisibilityPaymentModal }) => 
                         <View style={{ flex: 3 }}>
                             <View style={{ flex: 1, alignItems: 'center', justifyContent: 'space-around' }}>
                                 <IconButton
-                                    onPress={() => console.log('Dinheiro')}
+                                    onPress={() => endOrder('Dinheiro')}
                                     borderColor="green"
                                     name="money"
                                     color="green"
                                     text="Dinheiro"
                                 />
                                 <IconButton
-                                    onPress={() => console.log('Credito')}
+                                    onPress={() => endOrder('Credito')}
                                     borderColor="black"
                                     name="credit-card"
                                     color="black"
                                     text="Crédito"
                                 />
                                 <IconButton
-                                    onPress={() => console.log('Debito')}
+                                    onPress={() => endOrder('Debito')}
                                     borderColor="black"
                                     name="credit-card"
                                     color="black"

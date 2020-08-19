@@ -17,7 +17,7 @@ import { connect } from 'react-redux'
 const MyOrdersModal = ({ visibilityMyOrders, total, setVisibilityMyOrders, items, storeNewOrders }) => {
     const [refresh, setRefresh] = useState(false)
     const [orderId, setOrderId] = useState('')
-    const orderedItems = useSelector(state => state.orderedItems);
+    const orderedItems = useSelector(state => state.cart.orderedItems);
 
     const somar = (acumulado, x) => acumulado + x;
     const valores = orderedItems.map((item) => {
