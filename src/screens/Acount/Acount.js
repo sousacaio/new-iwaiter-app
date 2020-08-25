@@ -1,11 +1,13 @@
-import React, { useEffect } from 'react';
+import React, { useState } from 'react';
 import {
     Dimensions,
     View, Text,
     ScrollView,
     Image,
+    StyleSheet,
     TouchableOpacity
 } from 'react-native';
+import ImagePicker from 'react-native-image-picker'
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-community/async-storage';
 import MailIcon from 'react-native-vector-icons/Fontisto';
@@ -16,128 +18,127 @@ import { connect, useSelector } from 'react-redux';
 import { storeOrderedItems, storeOrderId } from '../../actions/cartActions';
 import { useAuth } from '../../services/authContext';
 const { width } = Dimensions.get('window')
-
+import ChangeNameModal from './ChangeNameModal';
+import ChangeEmailModal from './ChangeEmailModal';
+import ChangePassModal from './ChangePassModal';
+import api from '../../services/axios';
+import axios from 'axios';
+import { useEffect } from 'react';
 const Acount = () => {
+    const [visibilityNameModal, setVisibilityNameModal] = useState(false);
+    const [visibilityEmailModal, setVisibilityEmailModal] = useState(false);
+    const [visibilityPassModal, setVisibilityPassModal] = useState(false);
+
+
     const { singOut } = useAuth();
     const email = useSelector(state => state.customer.email);
     const name = useSelector(state => state.customer.name);
-    const photo = useSelector(state => state.customer.photo);
+    const id = useSelector(state => state.customer.id);
     const isThereAnActiveOrder = useSelector(state => state.cart.orderId);
+    const cartState = useSelector(state => state.cart);
     const handleLogout = async () => {
         await AsyncStorage.clear()
         singOut();
     }
+    useEffect(() => {
+        console.log(cartState)
+    }, [])
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
 
-            <View style={{ flex: 1, backgroundColor: '#6200ee', margin: 10, borderRadius: 10, justifyContent: 'center' }}>
-                <View style={{
-                    flex: 5,
-                    margin: 10,
-                    borderRadius: 5
-                }}>
-                    <Image
-                        resizeMode={'cover'}
-                        style={{
-                            flex: 1,
-                            width: undefined,
-                            height: undefined,
-                            borderRadius: 5
-                        }}
-                        source={{
-                            uri: photo ?
-                                `http://192.168.15.5:3000/${photo}`
-                                : `https://img.elo7.com.br/product/zoom/22565B3/adesivo-parede-prato-comida-frango-salada-restaurante-lindo-adesivo-parede.jpg`
-                        }} />
+
+            <View style={{ flex: 1, top: 60 }}>
+                <View style={styles.viewConfs}>
+                    <View >
+                        <Name name="profile" size={30} color="#6200ee" />
+                    </View>
+                    <View >
+                        <Text>{name}</Text>
+                    </View>
+                    <TouchableOpacity onPress={() => setVisibilityNameModal(true)} >
+                        <Edit name="edit" size={30} color="#6200ee" />
+                    </TouchableOpacity>
+                    <ChangeNameModal
+                        setVisibilityNameModal={setVisibilityNameModal}
+                        visibilityNameModal={visibilityNameModal}
+                    />
                 </View>
-                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                    <Text style={{ color: 'white' }}>(Clique na sua foto para trocá-la) </Text>
+                <View style={styles.viewConfs}>
+                    <View>
+                        <MailIcon name="email" size={30} color="#6200ee" />
+                    </View>
+                    <View >
+                        <Text>{email}</Text>
+                    </View>
+                    <TouchableOpacity onPress={() => setVisibilityEmailModal(true)}  >
+                        <Edit name="edit" size={30} color="#6200ee" />
+                    </TouchableOpacity>
+                    <ChangeEmailModal
+                        visibilityEmailModal={visibilityEmailModal}
+                        setVisibilityEmailModal={setVisibilityEmailModal}
+                    />
+                </View>
+                <View style={styles.viewConfs}>
+                    <View>
+                        <Pass name="key" size={30} color="#6200ee" />
+                    </View>
+                    <View >
+                        <Text>*************</Text>
+                    </View>
+                    <TouchableOpacity onPress={() => setVisibilityPassModal(true)}>
+                        <Edit name="edit" size={30} color="#6200ee" />
+                    </TouchableOpacity>
+                    <ChangePassModal
+                        visibilityPassModal={visibilityPassModal}
+                        setVisibilityPassModal={setVisibilityPassModal}
+                    />
+                </View>
+                <View style={{ flexDirection: 'row', height: 80, justifyContent: 'center', margin: 15 }}>
+                    {isThereAnActiveOrder ?
+                        <TouchableOpacity
+                            style={styles.logoutButton}
+                        //disabled={!isValid || isSubmitting}
+                        >
+                            <Text style={{ color: 'white' }}> Você não pode deslogar com uma comanda ativa! </Text>
+                        </TouchableOpacity>
+
+                        :
+                        <TouchableOpacity
+                            style={styles.logoutButton}
+                            onPress={() => handleLogout()}
+                        //disabled={!isValid || isSubmitting}
+                        >
+                            <Text style={{ color: 'white' }}>
+                                Logout
+                            </Text>
+                        </TouchableOpacity>
+
+                    }
+
+
                 </View>
             </View>
-            <ScrollView style={{ flex: 1 }}>
-                <View style={{ flex: 1 }}>
-                    <View style={{ flexDirection: 'row', height: 80, justifyContent: 'space-between', margin: 15 }}>
-                        <View >
-                            <Name name="profile" size={30} color="#6200ee" />
-                        </View>
-                        <View >
-                            <Text>{name}</Text>
-                        </View>
-                        <View >
-                            <Edit name="edit" size={30} color="#6200ee" />
-                        </View>
-                    </View>
-                    <View style={{ flexDirection: 'row', height: 80, justifyContent: 'space-between', margin: 15 }}>
-                        <View>
-                            <MailIcon name="email" size={30} color="#6200ee" />
-                        </View>
-                        <View >
-                            <Text>{email}</Text>
-                        </View>
-                        <View >
-                            <Edit name="edit" size={30} color="#6200ee" />
-                        </View>
-                    </View>
-                    <View style={{ flexDirection: 'row', height: 80, justifyContent: 'space-between', margin: 15 }}>
-                        <View>
-                            <Pass name="key" size={30} color="#6200ee" />
-                        </View>
-                        <View >
-                            <Text>*************</Text>
-                        </View>
-                        <View >
-                            <Edit name="edit" size={30} color="#6200ee" />
-                        </View>
-                    </View>
-                    <View style={{ flexDirection: 'row', height: 80, justifyContent: 'center', margin: 15 }}>
-                        {isThereAnActiveOrder ?
-                            <TouchableOpacity
-                                style={{
-                                    width: width / 1.2,
-                                    margin: 10,
-                                    borderWidth: 1,
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    backgroundColor: 'grey',
-                                    borderRadius: 5,
-                                    borderColor: 'white',
-                                    margin: 15
-                                }}
-                            //disabled={!isValid || isSubmitting}
-                            >
-                                <Text style={{ color: 'white' }}> Você não pode deslogar com uma comanda ativa! </Text>
-                            </TouchableOpacity>
-
-                            :
-                            <TouchableOpacity
-                                style={{
-                                    width: width / 1.5,
-                                    marginTop: 10,
-                                    borderWidth: 1,
-                                    alignItems: 'center',
-                                    justifyContent: 'center',
-                                    backgroundColor: '#6200ee',
-                                    borderRadius: 5,
-                                    borderColor: 'white',
-                                    margin: 15
-                                }}
-                                onPress={() => handleLogout()}
-                            //disabled={!isValid || isSubmitting}
-                            >
-                                <Text style={{ color: 'white' }}>
-                                    Logout
-                            </Text>
-                            </TouchableOpacity>
-
-                        }
-
-
-                    </View>
-                </View>
-            </ScrollView>
         </SafeAreaView>
     );
 }
-
+const styles = StyleSheet.create({
+    logoutButton: {
+        width: width / 1.5,
+        marginTop: 10,
+        borderWidth: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        backgroundColor: '#6200ee',
+        borderRadius: 5,
+        borderColor: 'white',
+        margin: 15
+    },
+    viewConfs: {
+        flexDirection: 'row',
+        height: 80,
+        justifyContent: 'space-between',
+        margin: 15
+    }
+})
 export default connect(null, null)(Acount)

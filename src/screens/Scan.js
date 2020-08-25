@@ -4,10 +4,12 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-community/async-storage';
+import { connect, useSelector } from 'react-redux';
 
 const Scan = (props) => {
-    console.log('scanprops:');
-    console.log(props);
+    const isFirstOrder = useSelector(state => state.cart.isFirstOrder);
+    const orderId = useSelector(state => state.cart.orderId);
+
     const [shouldRenderCamera, setShouldRenderCamera] = useState(true);
     const navigate = useNavigation();
     const onBarCodeRead = async (barcodes) => {
@@ -42,7 +44,10 @@ const Scan = (props) => {
                     },
                 });
             }
+        } else {
+            setShouldRenderCamera(true)
         }
+
         return () => {
             console.log('desmontou scan');
         }

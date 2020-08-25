@@ -2,12 +2,15 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { connect } from 'react-redux';
 const { width, height } = Dimensions.get('screen');
-import { addQuantity, subtractQuantity } from '../../actions/cartActions';
+import { addQuantity, subtractQuantity, removeItem } from '../../actions/cartActions';
 import { useSelector, useDispatch } from 'react-redux'
 import Reactotron from 'reactotron-react-native';
 const HandleQuantityArea = (props) => {
     const [qt, setQt] = useState(props.quantity)
     const dispatch = useDispatch();
+    const removeCartItem = (props) => {
+        dispatch(removeItem(props))
+    }
     useEffect(() => { }, [qt])
     return (
         <View style={styles.handleQuantityAreaContainer}>
@@ -16,7 +19,7 @@ const HandleQuantityArea = (props) => {
                     <TouchableOpacity
                         style={styles.handleQuantityAreaButton}
                         onPress={() => {
-                            dispatch(removeCartItem(props._id));
+                            removeCartItem(props._id);
                         }}>
                         <Text style={{ fontSize: 30, color: '#6200ee' }}>
                             X

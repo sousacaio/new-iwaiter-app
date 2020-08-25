@@ -90,7 +90,8 @@ const Home = (props) => {
                 await AsyncStorage.setItem('customer_id', _id);
 
                 if (id_establishment && id_point) {
-                    navigation.navigate('Comanda2', {
+                    login();
+                    navigation.navigate('Comanda', {
                         screen: 'Scan',
                         params: {
                             id_point: id_point,
@@ -102,6 +103,27 @@ const Home = (props) => {
                         login();
                     }, 1000);
                 }
+            }
+        }
+        if (email && password && !id_establishment && !id_point) {
+            console.log('Chegou aqui')
+            const response = await api.post('/customers/auth', { email, password });
+            if (response) {
+                await AsyncStorage.setItem('email', email);
+                AsyncStorage.setItem('password', password);
+                const { data: { data: { token, customer: { _id, name, photo } } } } = response;
+
+                AsyncStorage.setItem('name', name);
+                if (photo) {
+                    AsyncStorage.setItem('photo', photo);
+                }
+                AsyncStorage.setItem('token', token);
+                AsyncStorage.setItem('customer_id', _id);
+                bringUserInfo()
+                setTimeout(() => {
+
+                    login();
+                }, 1000);
             }
         }
     };
@@ -116,9 +138,9 @@ const Home = (props) => {
         });
     }
     useEffect(() => {
-         getInfoFromStorage()
-         bringUserInfo()
-         loginApi()
+        getInfoFromStorage()
+        bringUserInfo()
+        loginApi()
     }, [])
     const DATA = [
         {

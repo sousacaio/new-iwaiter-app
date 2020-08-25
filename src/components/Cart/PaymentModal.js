@@ -6,19 +6,28 @@ import {
 } from 'react-native';
 const { width, height } = Dimensions.get('window');
 import IconButton from '../IconButton';
-import { connect, useSelector } from 'react-redux'
+import { connect, useSelector, useDispatch } from 'react-redux'
 import api from '../../services/axios';
 import AsyncStorage from '@react-native-community/async-storage';
 import { useNavigation } from '@react-navigation/native';
+import { finishOrder } from '../../actions/cartActions'
 
 const PaymentModal = ({ visibilityPaymentModal, setVisibilityPaymentModal }) => {
     const orderIdRedux = useSelector(state => state.cart.orderId)
-
+    const cart = useSelector(state => state.cart)
+    const dispatch = useDispatch()
     const navigation = useNavigation();
+    console.log(cart)
+    const resetReduxStateCart = () => {
+        dispatch(finishOrder())
+    }
     async function deleteCredentials() {
         await AsyncStorage.removeItem('order_id');
         await AsyncStorage.removeItem('id_establishment');
         await AsyncStorage.removeItem('id_point');
+        await AsyncStorage.removeItem('isFirstOrder');
+        resetReduxStateCart()
+        console.log(cart)
     }
     const endOrder = async (paymentMethod) => {
         console.log('idorder:' + orderIdRedux);

@@ -7,3 +7,4 @@ export const FETCH_CATALOG = 'FETCH_CATALOG';
 export const CLEAR_CART = 'CLEAR_CART';
 export const STORE_ORDERED = 'STORE_ORDERED';
 export const STORE_ORDER_ID = 'STORE_ORDER_ID';
+export const FINISH_ORDER = 'FINISH_ORDER';

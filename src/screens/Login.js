@@ -5,44 +5,66 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-community/async-storage';
 import { useAuth } from '../services/authContext';
 import api from '../services/axios';
-import Reactotron from 'reactotron-react-native';
+import { useNavigation } from '@react-navigation/native';
 import { Formik } from 'formik';
 import * as Yup from 'yup'
 import ErrorMessage from '../components/ErrorMessage';
+import { storeUserInfo } from '../actions/customerActions';
+import { connect, useDispatch } from 'react-redux';
 
-
-export default Login = () => {
+const Login = () => {
     const { login } = useAuth();
-    console.log(login)
-    const loginApi =async (email, password) => {       
-        console.log(email,password)
+    const navigation = useNavigation()
+    const dispatch = useDispatch()
+
+    const storeUserInfoInRedux = (data) => {
+        dispatch(storeUserInfo(data))
+    }
+    const bringUserInfo = async () => {
+        const response = await api.get(`/customers/info/${await AsyncStorage.getItem('customer_id')}`)
+        console.log(response)
+        const { data: { data: { customerOrders, customers } } } = response;
+        const { _id, createdAt, email, name, photo } = customers[0];
+        storeUserInfoInRedux({
+            lastOrders: customerOrders,
+            name: name,
+            email: email,
+            id: _id,
+            createdAt: createdAt,
+            photo: photo
+        })
+    }
+    const loginApi = async (email, password) => {
+        console.log(email, password)
         console.log('chegou aqui')
         try {
-                await api.post('/customers/auth', { email, password }).then(async (response) => {
-            console.log('chegou aqui')
-            console.log(response)
-            if (response) {
-                await AsyncStorage.setItem('email', email);
-                AsyncStorage.setItem('password', password);
-                const { data: { data: { token, customer: { _id, name, photo } } } } = response;
-                AsyncStorage.setItem('name', name);
-                if (photo) {
-                    AsyncStorage.setItem('photo', photo);
+            await api.post('/customers/auth', { email, password }).then(async (response) => {
+                console.log('chegou aqui')
+                console.log(response)
+                if (response) {
+                    await AsyncStorage.setItem('email', email);
+                    AsyncStorage.setItem('password', password);
+                    const { data: { data: { token, customer: { _id, name, photo } } } } = response;
+
+                    AsyncStorage.setItem('name', name);
+                    if (photo) {
+                        AsyncStorage.setItem('photo', photo);
+                    }
+                    AsyncStorage.setItem('token', token);
+                    AsyncStorage.setItem('customer_id', _id);
+                    bringUserInfo()
+                    setTimeout(() => {
+
+                        login();
+                    }, 1000);
                 }
-                AsyncStorage.setItem('token', token);
-                AsyncStorage.setItem('customer_id', _id);
-                setTimeout(() => {
-                  
-                    login();
-                }, 1000);
-            }
-        }).catch(function (error) {
-            console.log(error)
-        });
+            }).catch(function (error) {
+                console.log(error)
+            });
         } catch (error) {
             console.log(error)
         }
-   
+
     };
     const validationSchema = Yup.object().shape({
         email: Yup.string()
@@ -74,7 +96,7 @@ export default Login = () => {
         <SafeAreaView style={{ flex: 1 }}>
             <Formik
                 initialValues={{ email: '', password: '' }}
-                onSubmit={values => { loginApi(values.email,values.password) }}
+                onSubmit={values => { loginApi(values.email, values.password) }}
                 validationSchema={validationSchema}
             >
                 {({ handleChange,
@@ -123,8 +145,23 @@ export default Login = () => {
                             >
                                 <Text style={{ color: 'white' }}>
                                     Login
-                                
                                 </Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                onPress={() => { navigation.navigate('SignUp') }}
+                                style={{
+                                    height: 60,
+                                    marginTop: 10,
+                                    borderWidth: 1,
+                                    alignItems: 'center',
+                                    justifyContent: 'center',
+                                    backgroundColor: '#6200ee',
+                                    borderRadius: 5,
+                                    borderColor: 'white',
+                                    margin: 15
+                                }}
+                            >
+                                <Text style={{ color: 'white' }}>Ainda não é cadastrado?Registre-se já!  </Text>
                             </TouchableOpacity>
                         </View>
                     )}
@@ -148,3 +185,4 @@ const styles = StyleSheet.create({
         backgroundColor: 'white',
     },
 })
+export default connect(null, null)(Login)

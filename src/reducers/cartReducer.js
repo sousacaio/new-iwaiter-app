@@ -6,7 +6,8 @@ import {
     FETCH_CATALOG,
     CLEAR_CART,
     STORE_ORDERED,
-    STORE_ORDER_ID
+    STORE_ORDER_ID,
+    FINISH_ORDER
 } from '../actions/action-types/cart-actions'
 
 const initState = {
@@ -22,6 +23,20 @@ const initState = {
 }
 const cartReducer = (state = initState, action) => {
     //INSIDE HOME COMPONENT
+    if (action.type === FINISH_ORDER) {
+        return {
+            ...state,
+            items: [],
+            addedItems: [],
+            orderedItems: [],
+            total: 0,
+            totalCart: 0,
+            totalOrder: 0,
+            hasOrdered: false,
+            isFirstOrder: true,
+            orderId: ''
+        }
+    }
     if (action.type === STORE_ORDER_ID) {
         return { ...state, orderId: action.data }
     }

@@ -1,4 +1,14 @@
-import { ADD_TO_CART, REMOVE_ITEM, SUB_QUANTITY, ADD_QUANTITY, FETCH_CATALOG, CLEAR_CART, STORE_ORDERED, STORE_ORDER_ID } from './action-types/cart-actions'
+import {
+    ADD_TO_CART,
+    REMOVE_ITEM,
+    SUB_QUANTITY,
+    ADD_QUANTITY,
+    FETCH_CATALOG,
+    CLEAR_CART,
+    STORE_ORDERED,
+    STORE_ORDER_ID,
+    FINISH_ORDER
+} from './action-types/cart-actions'
 
 //add cart action
 export const fetchCatalog = (data) => {
@@ -50,5 +60,11 @@ export const storeOrderId = (data) => {
     return {
         type: STORE_ORDER_ID,
         data
+    }
+}
+export const finishOrder = () => {
+    return {
+        type: FINISH_ORDER,
+
     }
 }
