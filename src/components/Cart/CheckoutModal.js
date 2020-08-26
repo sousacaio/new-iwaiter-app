@@ -46,40 +46,46 @@ const CheckoutModal = ({ modalVisible, total, setModalVisible, items, clearTheCa
     useEffect(() => {
         loadCredentials();
     }, [modalVisible])
-    const createOrder = async () => {
-        const response = await api.post(`orders/create/${customer}/${establishment}/${point}`, transformIdItems(items));
-        const { data } = response;
-        const { success } = data;
-        const desambiguation = data.data;
-        if (success) {
-            await AsyncStorage.setItem('isFirstOrder', 'false')
-            const { orders, _id } = desambiguation;
-            Reactotron.log('id da order criada:' + '\n' + _id)
-            console.log('id da order criada:' + '\n' + _id)
-            await AsyncStorage.setItem('order_id', _id);
-            console.log('confirm:' + await AsyncStorage.getItem('order_id'));
-            dispatchOrder(_id)
-            console.log('no redux:' + orderIdRedux)
-            setOrderId(_id)
-            setModalVisible(false)
-            storeNewOrders(orders);
-            clearTheCart()
-            ToastAndroid.show(
-                'Pedido efetuado com sucesso!',
-                ToastAndroid.LONG,
-                ToastAndroid.BOTTOM,
-            );
-
-        }
-    }
     const transformIdItems = (itemsFromCart) => {
         const newItemsFromCart = itemsFromCart.map((item) => {
-            const idProduct = item._id;
-            delete item._id;
+            const idProduct = item._id
             return { ...item, id_product: idProduct }
         })
         return newItemsFromCart;
     }
+    const createOrder = async () => {
+        try {
+
+            const newItems = transformIdItems(items)
+            console.log(newItems)
+            const response = await api.post(`orders/create/${customer}/${establishment}/${point}`, newItems);
+            console.log(response)
+            const { data } = response;
+            const { success } = data;
+            const desambiguation = data.data;
+            if (success) {
+                await AsyncStorage.setItem('isFirstOrder', 'false')
+                const { orders, _id } = desambiguation;
+                await AsyncStorage.setItem('order_id', _id);
+                dispatchOrder(_id)
+                console.log('no redux:' + orderIdRedux)
+                setOrderId(_id)
+                setModalVisible(false)
+                storeNewOrders(orders);
+                clearTheCart()
+                ToastAndroid.show(
+                    'Pedido efetuado com sucesso!',
+                    ToastAndroid.LONG,
+                    ToastAndroid.BOTTOM,
+                );
+
+            }
+        } catch (error) {
+            console.log(error)
+        }
+
+    }
+
     const newRequest = async () => {
         console.log('new request');
         const itemsCopy = items;
