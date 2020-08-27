@@ -5,8 +5,7 @@ import {
     Dimensions, Modal, StyleSheet,
     Button, TouchableOpacity, ToastAndroid, RefreshControl
 } from 'react-native';
-import Reactotron from 'reactotron-react-native';
-import Tags from '../Tags';
+
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useDispatch, useSelector } from 'react-redux';
 const { width, height } = Dimensions.get('window')
@@ -14,6 +13,8 @@ import api from '../../services/axios';
 import AsyncStorage from '@react-native-community/async-storage';
 import IconHandler from './IconHandler';
 import { connect } from 'react-redux'
+import AntiIcon from 'react-native-vector-icons/AntDesign';
+import MaterialComunity from 'react-native-vector-icons/MaterialCommunityIcons';
 const MyOrdersModal = ({ visibilityMyOrders, total, setVisibilityMyOrders, items, storeNewOrders }) => {
     const [refresh, setRefresh] = useState(false)
     const [orderId, setOrderId] = useState('')
@@ -48,7 +49,6 @@ const MyOrdersModal = ({ visibilityMyOrders, total, setVisibilityMyOrders, items
         loadCredentials();
     }, [])
     useEffect(() => {
-        Reactotron.log('refrescou')
         loadCredentials();
     }, [visibilityMyOrders, refresh])
     const LoadOrders = async () => {
@@ -63,41 +63,89 @@ const MyOrdersModal = ({ visibilityMyOrders, total, setVisibilityMyOrders, items
 
     }
     const renderOrderedItems = (item, index) => {
+        let message;
+        let icon;
+        switch (item.confirmed) {
+            case 1:
+                message = "Confirmado!"
+                icon = "checkcircle"
+                break;
+            case 2:
+                message = "Negado"
+                icon = "exclamationcircle"
+                break;
+            case 3:
+                message = "Em preparo"
+                icon = "clockcircle"
+                break;
+            case 0:
+                message = "Ainda não atendido"
+                icon = "clockcircle"
+                break;
+
+            default:
+                break;
+        }
         return (
-            <View style={{
-                flex: 1, backgroundColor: '#FAFAFA', margin: 10,
-                borderColor: '#6200ee',
-                borderBottomWidth: 6,
-                borderRadius: 5,
-                padding: 10
-            }}>
-                <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-around', borderBottomWidth: 1, borderColor: '#6200ee', }}>
-                    <View style={{ flex: 1, alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
-                        <Text style={{ fontSize: 20 }}>{item.quantity}x</Text>
+            <View style={styles.cardItemContainer}>
+                <View style={styles.cardItemHeader}>
+                    <Text style={{ fontSize: 20, color: 'black' }}>{item.name}</Text>
+                </View>
+                <View style={styles.cardItemSection}>
+                    <View style={styles.cardItemIcon}>
+                        <View>
+                            <AntiIcon name={icon} size={30} />
+                        </View>
+                        <View>
+                            <Text style={styles.fontStyle}>Status:</Text>
+                        </View>
                     </View>
-                    <View style={{ flex: 2, alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
-                        <Text style={{ fontSize: 20 }}>{item.name}</Text>
-                    </View>
-                    <View style={{ flex: 1, alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
-                        <IconHandler status={item.confirmed} />
+                    <View>
+                        <Text style={styles.fontStyle}>{message}</Text>
                     </View>
                 </View>
-                <View style={{ flex: 1, flexDirection: 'row' }}>
-                    <View style={{
-                        flex: 1,
-                        alignContent: 'center',
-                        justifyContent: 'center',
-                        alignItems: 'center'
-                    }}>
-                        <Text style={{ fontSize: 20 }}>Unidade: </Text>
-                        <Text style={{ fontSize: 20 }}>R${parseFloat(item.value).toFixed(2)}  </Text>
+                <View style={styles.cardItemSection}>
+                    <View style={styles.cardItemIcon}>
+                        <View>
+                            <AntiIcon name="shoppingcart" size={30} />
+                        </View>
+                        <View>
+                            <Text style={styles.fontStyle} >Quantidade:</Text>
+                        </View>
                     </View>
-                    <View style={{ flex: 1, alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
-                        <Text style={{ fontSize: 20 }}>Total do item:</Text>
-                        <Text style={{ fontSize: 20 }}>Total:R${parseFloat(item.value * item.quantity).toFixed(2)} </Text>
+
+                    <View>
+                        <Text style={styles.fontStyle}>{item.quantity}</Text>
                     </View>
                 </View>
-            </View>
+                <View style={styles.cardItemSection}>
+                    <View style={styles.cardItemIcon}>
+                        <View>
+                            <MaterialComunity name="dice-1" size={30} />
+                        </View>
+                        <View>
+                            <Text style={styles.fontStyle}>Unidade:</Text>
+                        </View>
+                    </View>
+                    <View>
+                        <Text style={styles.fontStyle}>R$ {parseFloat(item.value).toFixed(2)}</Text>
+                    </View>
+                </View>
+                <View style={styles.cardItemSection}>
+                    <View style={styles.cardItemIcon}>
+                        <View>
+                            <MaterialComunity name="dice-multiple" size={30} />
+                        </View>
+                        <View>
+                            <Text style={styles.fontStyle}>Total:</Text>
+                        </View>
+                    </View>
+                    <View>
+                        <Text style={styles.fontStyle}>R$ {parseFloat(item.value * item.quantity).toFixed(2)}</Text>
+                    </View>
+                </View>
+
+            </View >
         );
     }
     return (
@@ -245,6 +293,92 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         padding: 2
+    },
+    cardItemContainer: {
+        flex: 1,
+        backgroundColor: '#FAFAFA',
+        margin: 10,
+        borderColor: '#7D7D7D',
+        borderRadius: 5,
+        borderWidth: 2,
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.5,
+        shadowRadius: 2,
+        elevation: 2,
+    },
+    cardItemHeader: {
+        flex: 1,
+        backgroundColor: '#FAFAFA',
+        borderTopColor: '#7D7D7D',
+        borderBottomColor: '#7D7D7D',
+        borderLeftColor: '#FAFAFA',
+        borderRightColor: '#FAFAFA',
+        borderWidth: 0.5,
+        alignContent: 'center',
+        justifyContent: 'center',
+        alignItems: 'center',
+        padding: 10
+    },
+    cardItemIcon: {
+        flex: 1,
+        flexDirection: 'row',
+        justifyContent: 'space-around',
+    },
+
+    cardItemSection: {
+        flex: 1,
+        flexDirection: 'row',
+        backgroundColor: '#FAFAFA',
+        borderTopColor: '#7D7D7D',
+        borderBottomColor: '#7D7D7D',
+        borderLeftColor: '#FAFAFA',
+        borderRightColor: '#FAFAFA',
+        borderWidth: 0.5,
+        justifyContent: 'space-between',
+        padding: 10
+    },
+    fontStyle: {
+        color: '#7D7D7D', fontSize: 20, fontWeight: "400"
     }
 });
 export default connect(null, null)(MyOrdersModal);
+
+const RRenderOrderedItems = (item, index) => {
+    return (
+        <View style={{
+            flex: 1, backgroundColor: '#FAFAFA', margin: 10,
+            borderColor: '#6200ee',
+            borderBottomWidth: 6,
+            borderRadius: 5,
+            padding: 10
+        }}>
+            <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'space-around', borderBottomWidth: 1, borderColor: '#6200ee', }}>
+                <View style={{ flex: 1, alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
+                    <Text style={{ fontSize: 20 }}>{item.quantity}x</Text>
+                </View>
+                <View style={{ flex: 2, alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
+                    <Text style={{ fontSize: 20 }}>{item.name}</Text>
+                </View>
+                <View style={{ flex: 1, alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
+                    <IconHandler status={item.confirmed} />
+                </View>
+            </View>
+            <View style={{ flex: 1, flexDirection: 'row' }}>
+                <View style={{
+                    flex: 1,
+                    alignContent: 'center',
+                    justifyContent: 'center',
+                    alignItems: 'center'
+                }}>
+                    <Text style={{ fontSize: 20 }}>Unidade: </Text>
+                    <Text style={{ fontSize: 20 }}>R${parseFloat(item.value).toFixed(2)}  </Text>
+                </View>
+                <View style={{ flex: 1, alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
+                    <Text style={{ fontSize: 20 }}>Total do item:</Text>
+                    <Text style={{ fontSize: 20 }}>Total:R${parseFloat(item.value * item.quantity).toFixed(2)} </Text>
+                </View>
+            </View>
+        </View>
+    );
+}
