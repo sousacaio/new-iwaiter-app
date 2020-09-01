@@ -1,4 +1,4 @@
-
+/* eslint-disable */
 import React, { useEffect } from 'react';
 import {
     View,
@@ -8,9 +8,9 @@ import {
     Dimensions,
     TouchableHighlight,
     TouchableOpacity,
-    Animated,
+    ToastAndroid,
     ScrollView,
-    FlatList
+    FlatList,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-community/async-storage';
@@ -21,22 +21,28 @@ import Reactotron from 'reactotron-react-native';
 import { connect, useSelector } from 'react-redux';
 import { storeOrderedItems, storeOrderId } from '../../actions/cartActions';
 import { storeUserInfo } from '../../actions/customerActions';
-import Icon from 'react-native-vector-icons/Ionicons'
+import Icon from 'react-native-vector-icons/Ionicons';
 import RenderEstablishments from './RenderEstablishments';
 import RenderPromos from './RenderPromos';
 import RenderCategories from './RenderCategories';
 import RenderRecomended from './RenderRecomended';
-const { width } = Dimensions.get('window')
+const { width } = Dimensions.get('window');
 const Home = (props) => {
     const { login } = useAuth();
     const navigation = useNavigation();
     const storeUserInfoInRedux = (data) => {
-        props.storeUserInfo(data)
-    }
+        props.storeUserInfo(data);
+    };
     const bringUserInfo = async () => {
-        const response = await api.get(`/customers/info/${await AsyncStorage.getItem('customer_id')}`)
-        console.log(response)
-        const { data: { data: { customerOrders, customers } } } = response;
+        const response = await api.get(
+            `/customers/info/${await AsyncStorage.getItem('customer_id')}`,
+        );
+
+        const {
+            data: {
+                data: { customerOrders, customers },
+            },
+        } = response;
         const { _id, createdAt, email, name, photo } = customers[0];
         storeUserInfoInRedux({
             lastOrders: customerOrders,
@@ -44,35 +50,53 @@ const Home = (props) => {
             email: email,
             id: _id,
             createdAt: createdAt,
-            photo: photo
-        })
-    }
+            photo: photo,
+        });
+    };
     const storeOrderItems = (data) => {
-        props.storeOrderedItems(data)
-    }
+        props.storeOrderedItems(data);
+    };
     const storeOrderIdRedux = (data) => {
-        props.storeOrderId(data)
-    }
+        props.storeOrderId(data);
+    };
 
     const loginApi = async () => {
         const id_establishment = await AsyncStorage.getItem('id_establishment');
         const id_point = await AsyncStorage.getItem('id_point');
         const email = await AsyncStorage.getItem('email');
         const password = await AsyncStorage.getItem('password');
+        const orderId = await AsyncStorage.getItem('order_id');
+
         if (id_establishment && id_point && email && password) {
-            bringUserInfo()
-            getInfoFromStorage()
-            const response = await api.post('/customers/auth/orderOpen', {
-                email, password, id_establishment, id_point
+            bringUserInfo();
+            getInfoFromStorage();
+            const res = await api.post('/customers/auth/orderOpen', {
+                email,
+                password,
+                id_establishment,
+                id_point,
+                id_order: orderId,
             });
-            console.log(response)
-            const { data: { data } } = response;
-            const { customer, token, checkData } = data;
-            if (customer) {
+
+            const {
+                data: { message, response, status }
+            } = res;
+            const {
+                data
+            } = response;
+            const {
+                customer, token, checkData
+            } = data;
+            if (status === 200) {
                 if (checkData) {
+                    ToastAndroid.showWithGravity(
+                        'Ordem carregada com sucesso',
+                        ToastAndroid.SHORT,
+                        ToastAndroid.CENTER
+                    );
                     const { _id, orders, isClosed, isPaid } = checkData;
                     storeOrderItems(orders);
-                    storeOrderIdRedux(_id)
+                    storeOrderIdRedux(_id);
                     await AsyncStorage.setItem('order_id', _id);
                     await AsyncStorage.setItem('isClosed', JSON.stringify(isClosed));
                     await AsyncStorage.setItem('isPaid', JSON.stringify(isPaid));
@@ -90,28 +114,46 @@ const Home = (props) => {
                 await AsyncStorage.setItem('customer_id', _id);
 
                 if (id_establishment && id_point) {
+                    ToastAndroid.showWithGravity(
+                        'Catalogo carregado com sucesso',
+                        ToastAndroid.SHORT,
+                        ToastAndroid.CENTER
+                    );
                     login();
                     navigation.navigate('Comanda', {
                         screen: 'Scan',
                         params: {
                             id_point: id_point,
-                            id_establishment: id_establishment
-                        }
+                            id_establishment: id_establishment,
+                        },
                     });
                 } else {
                     setTimeout(() => {
                         login();
                     }, 1000);
                 }
+            } else {
+                ToastAndroid.showWithGravity(
+                    message,
+                    ToastAndroid.SHORT,
+                    ToastAndroid.CENTER
+                );
             }
         }
         if (email && password && !id_establishment && !id_point) {
-            console.log('Chegou aqui')
+
             const response = await api.post('/customers/auth', { email, password });
             if (response) {
                 await AsyncStorage.setItem('email', email);
                 AsyncStorage.setItem('password', password);
-                const { data: { data: { token, customer: { _id, name, photo } } } } = response;
+                const {
+                    data: {
+                        data: {
+                            token,
+                            customer: { _id, name, photo },
+                        },
+                    },
+                } = response;
 
                 AsyncStorage.setItem('name', name);
                 if (photo) {
@@ -119,9 +161,8 @@ const Home = (props) => {
                 }
                 AsyncStorage.setItem('token', token);
                 AsyncStorage.setItem('customer_id', _id);
-                bringUserInfo()
+                bringUserInfo();
                 setTimeout(() => {
-
                     login();
                 }, 1000);
             }
@@ -138,10 +179,10 @@ const Home = (props) => {
         });
     }
     useEffect(() => {
-        getInfoFromStorage()
-        bringUserInfo()
-        loginApi()
-    }, [])
+        getInfoFromStorage();
+        bringUserInfo();
+        loginApi();
+    }, []);
     const DATA = [
         {
             id: '12bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
@@ -172,78 +213,82 @@ const Home = (props) => {
         {
             id: '1',
             name: 'Bebidas',
-            icon: 'menu'
+            icon: 'menu',
         },
         {
             id: '2',
             name: 'Comidas',
-            icon: 'menu'
+            icon: 'menu',
         },
         {
             id: '3',
             name: 'Sobremesas',
-            icon: 'menu'
+            icon: 'menu',
         },
-    ]
+    ];
 
     return (
         <SafeAreaView style={{ flex: 1 }}>
             <ScrollView>
                 <View style={{ flex: 1, margin: 10 }}>
-                    <Text style={{ fontSize: 30 }}
-                    >Restaurantes parceiros:</Text>
+                    <Text style={{ fontSize: 30 }}>Restaurantes parceiros:</Text>
                     <FlatList
                         horizontal={true}
                         data={DATA}
-                        renderItem={(item) => { return (<RenderEstablishments title={item.title} />) }}
-                        keyExtractor={item => item.id}
+                        renderItem={(item) => {
+                            return <RenderEstablishments title={item.title} />;
+                        }}
+                        keyExtractor={(item) => item.id}
                     />
                 </View>
                 <View style={{ flex: 1, margin: 10 }}>
-                    <Text
-                        style={{ fontSize: 30 }}
-                    >Promoções:</Text>
+                    <Text style={{ fontSize: 30 }}>Promoções:</Text>
                     <FlatList
                         horizontal={true}
                         data={DATA}
-                        renderItem={(item) => { return (<RenderPromos title={item.title} />) }}
-                        keyExtractor={item => item.id}
+                        renderItem={(item) => {
+                            return <RenderPromos title={item.title} />;
+                        }}
+                        keyExtractor={(item) => item.id}
                     />
                 </View>
                 <View style={{ flex: 1, margin: 10 }}>
-                    <Text
-                        style={{ fontSize: 30 }}
-                    >Categorias:</Text>
+                    <Text style={{ fontSize: 30 }}>Categorias:</Text>
                     <FlatList
                         horizontal={true}
                         data={categories}
                         renderItem={({ item }) => {
-                            return (<RenderCategories iconName={item.icon} name={item.name} />)
+                            return <RenderCategories iconName={item.icon} name={item.name} />;
                         }}
-                        keyExtractor={item => item.id}
+                        keyExtractor={(item) => item.id}
                     />
                 </View>
                 <View style={{ flex: 1, margin: 10 }}>
-                    <Text
-                        style={{ fontSize: 30 }}
-                    >Recomendados:</Text>
+                    <Text style={{ fontSize: 30 }}>Recomendados:</Text>
                     <FlatList
                         horizontal={true}
                         data={DATA}
-                        renderItem={(item) => { return (<RenderRecomended />) }}
-                        keyExtractor={item => item.id}
+                        renderItem={(item) => {
+                            return <RenderRecomended />;
+                        }}
+                        keyExtractor={(item) => item.id}
                     />
                 </View>
-
             </ScrollView>
         </SafeAreaView>
     );
-}
+};
 const mapDispatchToProps = (dispatch) => {
     return {
-        storeOrderedItems: (id) => { dispatch(storeOrderedItems(id)) },
-        storeOrderId: (id) => { dispatch(storeOrderId(id)) },
-        storeUserInfo: (id) => { dispatch(storeUserInfo(id)) },
-    }
-}
-export default connect(null, mapDispatchToProps)(Home)
+        storeOrderedItems: (id) => {
+            dispatch(storeOrderedItems(id));
+        },
+        storeOrderId: (id) => {
+            dispatch(storeOrderId(id));
+        },
+        storeUserInfo: (id) => {
+            dispatch(storeUserInfo(id));
+        },
+    };
+};
+export default connect(null, mapDispatchToProps)(Home);

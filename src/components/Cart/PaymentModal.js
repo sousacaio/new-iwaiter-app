@@ -1,74 +1,79 @@
+/* eslint-disable */
 import React, { useEffect, useState } from 'react';
-import {
-    Text, View,
-    Dimensions, Modal,
-    StyleSheet, Alert
-} from 'react-native';
+import { Text, View, Dimensions, Modal, StyleSheet, Alert, ToastAndroid } from 'react-native';
 const { width, height } = Dimensions.get('window');
 import IconButton from '../IconButton';
-import { connect, useSelector, useDispatch } from 'react-redux'
+import { connect, useSelector, useDispatch } from 'react-redux';
 import api from '../../services/axios';
 import AsyncStorage from '@react-native-community/async-storage';
 import { useNavigation } from '@react-navigation/native';
-import { finishOrder } from '../../actions/cartActions'
-
+import { finishOrder } from '../../actions/cartActions';
+import Reactotron from 'reactotron-react-native';
 const PaymentModal = ({ visibilityPaymentModal, setVisibilityPaymentModal }) => {
-    const orderIdRedux = useSelector(state => state.cart.orderId)
-    const cart = useSelector(state => state.cart)
-    const dispatch = useDispatch()
+    const orderIdRedux = useSelector((state) => state.cart.orderId);
+    const cart = useSelector((state) => state.cart);
+    const dispatch = useDispatch();
     const navigation = useNavigation();
-    console.log(cart)
+    console.log(cart);
     const resetReduxStateCart = () => {
-        dispatch(finishOrder())
-    }
+        dispatch(finishOrder());
+    };
     async function deleteCredentials() {
         await AsyncStorage.removeItem('order_id');
         await AsyncStorage.removeItem('id_establishment');
         await AsyncStorage.removeItem('id_point');
         await AsyncStorage.removeItem('isFirstOrder');
-        resetReduxStateCart()
-        console.log(cart)
+        resetReduxStateCart();
+        console.log(cart);
     }
     const endOrder = async (paymentMethod) => {
         console.log('idorder:' + orderIdRedux);
         console.log('paymentMethod:' + paymentMethod);
-        const response = await api.post(`orders/endOrder/${orderIdRedux}/${paymentMethod}`);
-        //console.log(`orders/endOrder/${orderIdRedux}/${paymentMethod}`)
-        console.log(response)
-        const { data: { data } } = response;
-        if (data) {
-            const { isClosed } = data;
+        const res = await api.post(
+            `orders/endOrder/${orderIdRedux}/${paymentMethod}`,
+        );
+        const { data: { response, status, message } } = res;
+        if (status === 200) {
+            const { data: { isClosed } } = response
             if (isClosed === true) {
                 Alert.alert(
-                    "Pagamento",
-                    "Dirija-se ao caixa para efetuar o pagamento no método escolhido",
+                    'Pagamento',
+                    message,
                     [
                         {
-                            text: "OK", onPress: () => {
-                                deleteCredentials()
+                            text: 'OK',
+                            onPress: () => {
+                                deleteCredentials();
                                 navigation.navigate('Home', {
-                                    screen: 'Conta'
-                                })
-                            }
-                        }
+                                    screen: 'Conta',
+                                });
+                            },
+                        },
                     ],
-                    { cancelable: false }
+                    { cancelable: false },
                 );
-
-
             } else {
-
+                ToastAndroid.show(
+                    'Seu pedido para fechamento de comanda não foi processado,tente novamente',
+                    ToastAndroid.LONG,
+                    ToastAndroid.BOTTOM,
+                );
             }
+        } else {
+            ToastAndroid.show(
+                message,
+                ToastAndroid.LONG,
+                ToastAndroid.BOTTOM,
+            );
         }
-    }
 
+    };
 
     return (
         <Modal
             animationType="slide"
             transparent={true}
-            visible={visibilityPaymentModal}
-        >
+            visible={visibilityPaymentModal}>
             <View style={styles.modalContainer}>
                 <View style={styles.contentContainer}>
                     <View style={styles.headerContainer}>
@@ -76,12 +81,17 @@ const PaymentModal = ({ visibilityPaymentModal, setVisibilityPaymentModal }) => 
                             <Text
                                 numberOfLines={2}
                                 ellipsizeMode="tail"
-                                style={styles.nameText}
-                            >Método de pagamento:
-                            </Text>
+                                style={styles.nameText}>
+                                Método de pagamento:
+              </Text>
                         </View>
                         <View style={{ flex: 3 }}>
-                            <View style={{ flex: 1, alignItems: 'center', justifyContent: 'space-around' }}>
+                            <View
+                                style={{
+                                    flex: 1,
+                                    alignItems: 'center',
+                                    justifyContent: 'space-around',
+                                }}>
                                 <IconButton
                                     onPress={() => endOrder('Dinheiro')}
                                     borderColor="green"
@@ -104,10 +114,15 @@ const PaymentModal = ({ visibilityPaymentModal, setVisibilityPaymentModal }) => 
                                     text="Débito"
                                 />
                             </View>
-                            <View>
-                            </View>
+                            <View />
                         </View>
-                        <View style={{ flex: 1, alignContent: 'center', justifyContent: 'center', alignItems: 'center' }}>
+                        <View
+                            style={{
+                                flex: 1,
+                                alignContent: 'center',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                            }}>
                             <IconButton
                                 onPress={() => setVisibilityPaymentModal(false)}
                                 borderColor="purple"
@@ -119,8 +134,9 @@ const PaymentModal = ({ visibilityPaymentModal, setVisibilityPaymentModal }) => 
                     </View>
                 </View>
             </View>
-        </Modal >)
-}
+        </Modal>
+    );
+};
 
 const styles = StyleSheet.create({
     modalContainer: {
@@ -136,11 +152,11 @@ const styles = StyleSheet.create({
         width: width / 1.2,
         height: height / 2,
         borderBottomLeftRadius: 40,
-        borderTopLeftRadius: 5
+        borderTopLeftRadius: 5,
     },
     contentContainer: {
         flex: 1,
-        margin: 10
+        margin: 10,
     },
     headerContainer: {
         flex: 1,
@@ -155,7 +171,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         fontSize: 30,
         fontStyle: 'italic',
-        alignSelf: 'flex-start'
+        alignSelf: 'flex-start',
     },
     valueContainer: {
         flex: 2,
@@ -170,21 +186,21 @@ const styles = StyleSheet.create({
         borderBottomLeftRadius: 10,
         justifyContent: 'center',
         alignItems: 'center',
-        padding: 2
+        padding: 2,
     },
     appButtonContainer: {
         elevation: 8,
-        backgroundColor: "#009688",
+        backgroundColor: '#009688',
         borderRadius: 10,
         paddingVertical: 10,
-        paddingHorizontal: 12
+        paddingHorizontal: 12,
     },
     appButtonText: {
         fontSize: 18,
-        color: "#fff",
-        fontWeight: "bold",
-        alignSelf: "center",
-        textTransform: "uppercase"
-    }
+        color: '#fff',
+        fontWeight: 'bold',
+        alignSelf: 'center',
+        textTransform: 'uppercase',
+    },
 });
 export default connect(null, null)(PaymentModal);
