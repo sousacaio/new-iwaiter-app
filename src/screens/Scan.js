@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 'use strict';
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
@@ -7,77 +8,103 @@ import AsyncStorage from '@react-native-community/async-storage';
 import { connect, useSelector } from 'react-redux';
 
 const Scan = (props) => {
-    const isFirstOrder = useSelector(state => state.cart.isFirstOrder);
-    const orderId = useSelector(state => state.cart.orderId);
+    const isFirstOrder = useSelector((state) => state.cart.isFirstOrder);
+    const orderId = useSelector((state) => state.cart.orderId);
 
     const [shouldRenderCamera, setShouldRenderCamera] = useState(true);
     const navigate = useNavigation();
     const onBarCodeRead = async (barcodes) => {
         if (!barcodes[0].data.match(/errorCode/)) {
-            var parametros = barcodes[0].data.split("?")[1];
-            var listaDeParametros = parametros.split("&");
-            var id_point = listaDeParametros[0].split("=")[1];
-            var id_establishment = listaDeParametros[1].split("=")[1];
-            console.log("id_point: " + id_point);
-            console.log("id_establishment: " + id_establishment);
+            var parametros = barcodes[0].data.split('?')[1];
+            var listaDeParametros = parametros.split('&');
+            var id_point = listaDeParametros[0].split('=')[1];
+            var id_establishment = listaDeParametros[1].split('=')[1];
+            console.log('id_point: ' + id_point);
+            console.log('id_establishment: ' + id_establishment);
             setShouldRenderCamera(false);
             await AsyncStorage.setItem('id_establishment', id_establishment);
             await AsyncStorage.setItem('id_point', id_point);
             navigate.navigate('Order', {
-                screen: 'Catalog', params: {
-                    data:
-                        { id_point, id_establishment }
+                screen: 'Catalog',
+                params: {
+                    data: { id_point, id_establishment },
                 },
             });
         }
-
-    }
+    };
     useEffect(() => {
         if (props && props.route && props.route.params) {
             const { id_establishment, id_point } = props.route.params;
             if (id_establishment && id_point) {
                 setShouldRenderCamera(false);
                 navigate.navigate('Order', {
-                    screen: 'Catalog', params: {
-                        data:
-                            { id_point, id_establishment }
+                    screen: 'Catalog',
+                    params: {
+                        data: { id_point, id_establishment },
                     },
                 });
             }
         } else {
-            setShouldRenderCamera(true)
+            setShouldRenderCamera(true);
         }
 
         return () => {
             console.log('desmontou scan');
-        }
-
-    }, []);
+        };
+    }, [props, navigate]);
     return (
         <View style={styles.container}>
-            {shouldRenderCamera ?
+            {shouldRenderCamera ? (
                 <RNCamera
                     style={styles.preview}
                     type={RNCamera.Constants.Type.back}
                     flashMode={RNCamera.Constants.FlashMode.on}
                     androidCameraPermissionOptions={{
                         title: 'Permissão para usar a camera',
-                        message: 'Precisamos de sua permissão para acessar a camera e ler os qrcodes',
+                        message:
+                            'Precisamos de sua permissão para acessar a camera e ler os qrcodes',
                         buttonPositive: 'Aceitar',
                         buttonNegative: 'Negar',
                     }}
-                    onGoogleVisionBarcodesDetected={({ barcodes }) => onBarCodeRead(barcodes)}
-                /> :
-                <View>
+                    onGoogleVisionBarcodesDetected={({ barcodes }) =>
+                        onBarCodeRead(barcodes)
+                    }
+                />
+            ) : (
+                    <View style={{
+                        flex: 1,
+                        backgroundColor: 'white',
+                        justifyContent: 'center',
+                        alignContent: 'center',
+                        alignItems: 'center'
+                    }}>
+                        <Text>Deseja escanear outro ponto? </Text>
+                        <TouchableOpacity style={{
+                            borderColor: '#6200ee',
+                            width: 200,
+                            height: 100,
+                            borderWidth: 2,
+                            borderRadius: 5,
+                        }}
+                            onPress={() => setShouldRenderCamera(true)}
+                        >
+                            <View style={{ flexDirection: 'row', flex: 1 }}>
 
-                </View>
-            }
-
+                                <View style={{
+                                    flex: 1,
+                                    alignItems: 'center',
+                                    alignContent: 'center',
+                                    justifyContent: 'center',
+                                }}>
+                                    <Text>Sim</Text>
+                                </View>
+                            </View>
+                        </TouchableOpacity>
+                    </View>
+                )}
         </View>
     );
-
-
-}
+};
 
 const styles = StyleSheet.create({
     container: {

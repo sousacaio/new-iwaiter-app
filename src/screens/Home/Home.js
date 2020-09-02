@@ -77,16 +77,19 @@ const Home = (props) => {
                 id_point,
                 id_order: orderId,
             });
-
+            console.log(res)
             const {
                 data: { message, response, status }
             } = res;
+
             const {
                 data
             } = response;
+
             const {
                 customer, token, checkData
             } = data;
+
             if (status === 200) {
                 if (checkData) {
                     ToastAndroid.showWithGravity(
@@ -161,7 +164,7 @@ const Home = (props) => {
                 }
                 AsyncStorage.setItem('token', token);
                 AsyncStorage.setItem('customer_id', _id);
-                bringUserInfo();
+
                 setTimeout(() => {
                     login();
                 }, 1000);
