@@ -244,15 +244,6 @@ const MyOrdersModal = ({
                                 </View>
                             </View>
                             <View style={{ flex: 1, alignItems: 'stretch' }}>
-                                <TouchableOpacity style={styles.buttonStyle} onPress={() => { }}>
-                                    <Text
-                                        adjustsFontSizeToFit={true}
-                                        style={{
-                                            color: 'white',
-                                        }}>
-                                        {'Fechar comanda'}{' '}
-                                    </Text>
-                                </TouchableOpacity>
                                 <TouchableOpacity
                                     style={styles.buttonStyle}
                                     onPress={() => {

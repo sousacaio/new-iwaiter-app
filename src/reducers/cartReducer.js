@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import {
     ADD_TO_CART,
     REMOVE_ITEM,

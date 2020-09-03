@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Dimensions } from 'react-native';
 import { connect } from 'react-redux';
@@ -6,16 +7,23 @@ import { addQuantity, subtractQuantity, removeItem } from '../../actions/cartAct
 import { useSelector, useDispatch } from 'react-redux'
 import Reactotron from 'reactotron-react-native';
 const HandleQuantityArea = (props) => {
+
     const [qt, setQt] = useState(props.quantity)
     const dispatch = useDispatch();
     const removeCartItem = (props) => {
         dispatch(removeItem(props))
     }
+
+    const idSelected = props._id;
+    const addedItems = useSelector((state) => state.cart.addedItems);
+    const showQuantityArea = addedItems.filter((item) => { return item._id === idSelected });
+    const trueObject = showQuantityArea[0]
+    const trueQuantity = trueObject.quantity;
     useEffect(() => { }, [qt])
     return (
         <View style={styles.handleQuantityAreaContainer}>
-            <View style={{ flex: 1, justifyContent: 'space-around', }}>
-                {qt === 0 ?
+            <View style={styles.handleQuantityAreaView}>
+                {trueQuantity === 0 ?
                     <TouchableOpacity
                         style={styles.handleQuantityAreaButton}
                         onPress={() => {
@@ -28,7 +36,7 @@ const HandleQuantityArea = (props) => {
                     <TouchableOpacity
                         style={styles.handleQuantityAreaButton}
                         onPress={() => {
-                            setQt(qt => qt - 1)
+
                             dispatch(subtractQuantity(props._id));
                         }}>
                         <Text style={{ fontSize: 30, color: '#6200ee' }}>
@@ -40,7 +48,7 @@ const HandleQuantityArea = (props) => {
             <View style={styles.handleQuantityAreaView} >
                 <View style={{ alignItems: 'center' }}>
                     <Text style={{ fontSize: 20, color: '#6200ee' }}>
-                        {qt}
+                        {trueQuantity}
                     </Text>
                 </View >
             </View >
@@ -48,7 +56,6 @@ const HandleQuantityArea = (props) => {
                 <TouchableOpacity
                     style={styles.handleQuantityAreaButton}
                     onPress={() => {
-                        setQt(qt => qt + 1)
                         dispatch(addQuantity(props._id));
                     }}>
                     <Text style={{ fontSize: 30, color: '#6200ee' }}>
@@ -64,7 +71,7 @@ const styles = StyleSheet.create({
     handleQuantityAreaContainer: {
         flex: 1,
         flexDirection: 'row',
-        justifyContent: 'space-around',
+        justifyContent: 'space-evenly',
     },
     handleQuantityAreaView: {
         flex: 1,
@@ -75,8 +82,7 @@ const styles = StyleSheet.create({
         borderColor: '#6200ee',
         alignItems: 'center',
         justifyContent: 'center',
-        width: 30,
-        height: 30,
+        flex: 1,
         backgroundColor: '#fff',
         borderRadius: 50,
     }
