@@ -67,6 +67,7 @@ const Home = (props) => {
         const password = await AsyncStorage.getItem('password');
         const orderId = await AsyncStorage.getItem('order_id');
 
+        
         if (id_establishment && id_point && email && password) {
             bringUserInfo();
             getInfoFromStorage();
@@ -144,8 +145,9 @@ const Home = (props) => {
             }
         }
         if (email && password && !id_establishment && !id_point) {
-
+            console.log('chegou aqui')
             const response = await api.post('/customers/auth', { email, password });
+            
             if (response) {
                 await AsyncStorage.setItem('email', email);
                 AsyncStorage.setItem('password', password);
