@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useState,useRef} from 'react';
 import {
   Text,
   View,
@@ -7,13 +7,16 @@ import {
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
+  TouchableHighlight,
+  ScrollView,
+  Dimensions
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {connect} from 'react-redux';
 import api from '../services/axios';
 import Tags from '../components/Tags';
 import ProductModal from '../components/Catalog/ProductModal';
-
+const {width,height} = Dimensions.get('screen')
 import {fetchCatalog, addToCart} from '../actions/cartActions';
 
 const Catalog = (props) => {
@@ -44,7 +47,12 @@ const Catalog = (props) => {
   useEffect(() => {
     fetchProducts(id_establishment, id_point);
   }, []);
-
+   const flatListRef = useRef();
+  function ScrollToThisThing(index) {
+    console.log(index)
+    flatListRef.current.scrollToIndex({ index: index, animated: true });
+  }
+  
   function renderItem({item, index}) {
     const {value} = item;
     const newValue = parseFloat(value).toFixed(2);
@@ -101,19 +109,84 @@ const Catalog = (props) => {
       </>
     );
   }
+
+const immutableProducts = products;
+
+const firstDrinks = immutableProducts.findIndex( x => x.category === 'bebidas' );
+
+const firstFood = immutableProducts.findIndex( x => x.category === 'comidas' );
+const firstDessert = immutableProducts.findIndex( x => x.category === 'sobremesas' );
+console.log(firstDessert)
+
+
   return (
     <SafeAreaView style={{flex: 1}}>
       <View style={{flex: 1}}>
-        <FlatList
+
+       <View style={{flex:1, flexDirection:'row',
+       justifyContent:'space-around',
+       
+       }}>
+       <TouchableHighlight 
+         style={{
+           flex:1,
+           justifyContent:'center',
+           alignItems:'center',
+           backgroundColor: '#6200ee',
+           borderRadius:10,    
+           margin:10       
+           }}
+         onPress={() => ScrollToThisThing(firstDrinks)}>
+        <Text
+        style={{color:'white'}}
+        > Bebidas </Text>
+      </TouchableHighlight>
+     <TouchableHighlight 
+   style={{
+     flex:1,        
+           justifyContent:'center',
+           alignItems:'center',
+           backgroundColor: '#6200ee',
+           borderRadius:10, 
+             margin:10        
+   }}
+     onPress={() => ScrollToThisThing(firstFood)}>
+        <Text
+        style={{color:'white'}}
+        > Comidas </Text>
+      </TouchableHighlight>
+      <TouchableHighlight 
+     style={{
+        flex:1,        
+           justifyContent:'center',
+           alignItems:'center',
+           backgroundColor: '#6200ee',
+           borderRadius:10, 
+             margin:10  
+     }}
+     onPress={() => ScrollToThisThing(firstDessert)}>
+        <Text
+          style={{color:'white'}}
+        > Sobremesas </Text>
+      </TouchableHighlight>
+       </View>
+      
+    <View style={{flex:5}}>
+    <FlatList
           data={products}
+          getItemLayout={(data, index) => (   {length: height/4, offset: (height/4) * index, index})}
+          ref={flatListRef}
           renderItem={({item, index}) => renderItem({item, index})}
           keyExtractor={(item, index) => `list-item-${index}`}
+          
           ListEmptyComponent={
             <View style={styles.container}>
               <ActivityIndicator size="large" color="#0000ff" />
             </View>
           }
         />
+    </View>
+     
       </View>
       <ProductModal
         modalVisible={modalVisible}
@@ -144,7 +217,7 @@ const ViewWithText = ({flex, margin, color, fontSize, fontStyle, text}) => {
 };
 const styles = StyleSheet.create({
   cardContainer: {
-    flex: 1,
+    height:height/4,
     flexDirection: 'row',
   },
   imageContainer: {

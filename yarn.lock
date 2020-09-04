@@ -6315,6 +6315,13 @@ react-is@^16.12.0, react-is@^16.13.0, react-is@^16.7.0, react-is@^16.8.1, react-
   dependencies:
     prop-types "^15.6.2"
 
+react-native-expo-interactive-section-list@^1.3.0:
+  version "1.3.0"
+  resolved "https://registry.yarnpkg.com/react-native-expo-interactive-section-list/-/react-native-expo-interactive-section-list-1.3.0.tgz#55fa20bd823e9401f015dc958bb0439187f6d300"
+  integrity sha512-1oVHvPT9we5z5GICXw3+DFeGo3OF7WMEkQGbQrSdtpc6ock0DkiEkf6KtVCcyAcM3N18IqTxyxkW9XAuiIniEg==
+  dependencies:
+    react-native-section-list-get-item-layout "^2.2.3"
+
 react-native-flipper@^0.34.0:
   version "0.34.0"
   resolved "https://registry.yarnpkg.com/react-native-flipper/-/react-native-flipper-0.34.0.tgz#7df1f38ba5d97a9321125fe0fccbe47d99e6fa1d"
@@ -6361,6 +6368,11 @@ react-native-screens@^2.9.0:
   version "2.9.0"
   resolved "https://registry.yarnpkg.com/react-native-screens/-/react-native-screens-2.9.0.tgz#ead2843107ba00fee259aa377582e457c74f1f3b"
   integrity sha512-5MaiUD6HA3nzY3JbVI8l3V7pKedtxQF3d8qktTVI0WmWXTI4QzqOU8r8fPVvfKo3MhOXwhWBjr+kQ7DZaIQQeg==
+
+react-native-section-list-get-item-layout@^2.2.3:
+  version "2.2.3"
+  resolved "https://registry.yarnpkg.com/react-native-section-list-get-item-layout/-/react-native-section-list-get-item-layout-2.2.3.tgz#152a8efdcb3847dbcbeb04cd2d0de4312d3d2fcb"
+  integrity sha512-fzCW5SiYP6qCZyDHebaElHonIFr8NFrZK9JDkxFLnpxMJih4d+HQ4rHyOs0Z4Gb/FjyCVbRH7RtEnjeQ0XffMg==
 
 react-native-svg@^12.1.0:
   version "12.1.0"

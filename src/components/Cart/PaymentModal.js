@@ -14,8 +14,7 @@ const PaymentModal = ({ visibilityPaymentModal, setVisibilityPaymentModal }) => 
     const cart = useSelector((state) => state.cart);
     const dispatch = useDispatch();
     const navigation = useNavigation();
-    console.log(cart);
-    const resetReduxStateCart = () => {
+        const resetReduxStateCart = () => {
         dispatch(finishOrder());
     };
     async function deleteCredentials() {
