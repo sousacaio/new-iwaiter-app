@@ -1,193 +1,17 @@
 /* eslint-disable */
-import React, { useEffect } from 'react';
+import React from 'react';
 import {
     View,
     Text,
-    TextInput,
-    Image,
-    Dimensions,
-    TouchableHighlight,
-    TouchableOpacity,
-    ToastAndroid,
     ScrollView,
     FlatList,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import AsyncStorage from '@react-native-community/async-storage';
-import { useAuth } from '../../services/authContext';
-import api from '../../services/axios';
-import { useNavigation } from '@react-navigation/native';
-import Reactotron from 'reactotron-react-native';
-import { connect, useSelector } from 'react-redux';
-import { storeOrderedItems, storeOrderId } from '../../actions/cartActions';
-import { storeUserInfo } from '../../actions/customerActions';
-import Icon from 'react-native-vector-icons/Ionicons';
 import RenderEstablishments from './RenderEstablishments';
 import RenderPromos from './RenderPromos';
 import RenderCategories from './RenderCategories';
 import RenderRecomended from './RenderRecomended';
-const { width } = Dimensions.get('window');
-const Home = (props) => {
-    const { login } = useAuth();
-    const navigation = useNavigation();
-    const storeUserInfoInRedux = (data) => {
-        props.storeUserInfo(data);
-    };
-    const bringUserInfo = async () => {
-        const response = await api.get(
-            `/customers/info/${await AsyncStorage.getItem('customer_id')}`,
-        );
-
-        const {
-            data: {
-                data: { customerOrders, customers },
-            },
-        } = response;
-        const { _id, createdAt, email, name, photo } = customers[0];
-        storeUserInfoInRedux({
-            lastOrders: customerOrders,
-            name: name,
-            email: email,
-            id: _id,
-            createdAt: createdAt,
-            photo: photo,
-        });
-    };
-    const storeOrderItems = (data) => {
-        props.storeOrderedItems(data);
-    };
-    const storeOrderIdRedux = (data) => {
-        props.storeOrderId(data);
-    };
-
-    const loginApi = async () => {
-        const id_establishment = await AsyncStorage.getItem('id_establishment');
-        const id_point = await AsyncStorage.getItem('id_point');
-        const email = await AsyncStorage.getItem('email');
-        const password = await AsyncStorage.getItem('password');
-        const orderId = await AsyncStorage.getItem('order_id');
-
-        
-        if (id_establishment && id_point && email && password) {
-            bringUserInfo();
-            getInfoFromStorage();
-            const res = await api.post('/customers/auth/orderOpen', {
-                email,
-                password,
-                id_establishment,
-                id_point,
-                id_order: orderId,
-            });
-            console.log(res)
-            const {
-                data: { message, response, status }
-            } = res;
-
-            const {
-                data
-            } = response;
-
-            const {
-                customer, token, checkData
-            } = data;
-
-            if (status === 200) {
-                if (checkData) {
-                    ToastAndroid.showWithGravity(
-                        'Ordem carregada com sucesso',
-                        ToastAndroid.SHORT,
-                        ToastAndroid.CENTER
-                    );
-                    const { _id, orders, isClosed, isPaid } = checkData;
-                    storeOrderItems(orders);
-                    storeOrderIdRedux(_id);
-                    await AsyncStorage.setItem('order_id', _id);
-                    await AsyncStorage.setItem('isClosed', JSON.stringify(isClosed));
-                    await AsyncStorage.setItem('isPaid', JSON.stringify(isPaid));
-                    await AsyncStorage.setItem('isFirstOrder', 'false');
-                } else {
-                    await AsyncStorage.setItem('isFirstOrder', 'true');
-                    await AsyncStorage.removeItem('order_id');
-                }
-                const { _id, name, photo } = customer;
-                await AsyncStorage.setItem('name', name);
-                if (photo) {
-                    AsyncStorage.setItem('photo', photo);
-                }
-                await AsyncStorage.setItem('token', token);
-                await AsyncStorage.setItem('customer_id', _id);
-
-                if (id_establishment && id_point) {
-                    ToastAndroid.showWithGravity(
-                        'Catalogo carregado com sucesso',
-                        ToastAndroid.SHORT,
-                        ToastAndroid.CENTER
-                    );
-                    login();
-                    navigation.navigate('Comanda', {
-                        screen: 'Scan',
-                        params: {
-                            id_point: id_point,
-                            id_establishment: id_establishment,
-                        },
-                    });
-                } else {
-                    setTimeout(() => {
-                        login();
-                    }, 1000);
-                }
-            } else {
-                ToastAndroid.showWithGravity(
-                    message,
-                    ToastAndroid.SHORT,
-                    ToastAndroid.CENTER
-                );
-            }
-        }
-        if (email && password && !id_establishment && !id_point) {
-            console.log('chegou aqui')
-            const response = await api.post('/customers/auth', { email, password });
-            
-            if (response) {
-                await AsyncStorage.setItem('email', email);
-                AsyncStorage.setItem('password', password);
-                const {
-                    data: {
-                        data: {
-                            token,
-                            customer: { _id, name, photo },
-                        },
-                    },
-                } = response;
-
-                AsyncStorage.setItem('name', name);
-                if (photo) {
-                    AsyncStorage.setItem('photo', photo);
-                }
-                AsyncStorage.setItem('token', token);
-                AsyncStorage.setItem('customer_id', _id);
-
-                setTimeout(() => {
-                    login();
-                }, 1000);
-            }
-        }
-    };
-    async function getInfoFromStorage() {
-        AsyncStorage.getAllKeys((err, keys) => {
-            AsyncStorage.multiGet(keys, (error, stores) => {
-                stores.map((result, i, store) => {
-                    console.log({ [store[i][0]]: store[i][1] });
-                    return true;
-                });
-            });
-        });
-    }
-    useEffect(() => {
-        getInfoFromStorage();
-        bringUserInfo();
-        loginApi();
-    }, []);
+const Home = () => {
     const DATA = [
         {
             id: '12bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
@@ -283,17 +107,4 @@ const Home = (props) => {
         </SafeAreaView>
     );
 };
-const mapDispatchToProps = (dispatch) => {
-    return {
-        storeOrderedItems: (id) => {
-            dispatch(storeOrderedItems(id));
-        },
-        storeOrderId: (id) => {
-            dispatch(storeOrderId(id));
-        },
-        storeUserInfo: (id) => {
-            dispatch(storeUserInfo(id));
-        },
-    };
-};
-export default connect(null, mapDispatchToProps)(Home);
+export default Home;

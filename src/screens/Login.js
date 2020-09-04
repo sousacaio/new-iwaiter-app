@@ -1,4 +1,4 @@
-
+/* eslint-disable */
 import React, { useState, useEffect } from 'react';
 import { View, StyleSheet, Text, TextInput, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -76,22 +76,7 @@ const Login = () => {
             .required('O campo "senha" não pode ficar em branco')
             .min(4, 'A senha tem que ter pelo menos 6 caracteres ')
     })
-    async function directLogin() {
-        const storedEmail = await AsyncStorage.getItem('email');
-        const storedPassword = await AsyncStorage.getItem('password');
-        console.log(storedEmail);
-        console.log(storedPassword);
-        if (storedEmail && storedPassword) {
-            loginApi(storedEmail, storedPassword)
-        }
-    }
-    useEffect(() => {
-        console.log('montou login')
-        directLogin();
-        return () => {
-            console.log('desmontou login')
-        }
-    }, []);
+  
     return (
         <SafeAreaView style={{ flex: 1 }}>
             <Formik
