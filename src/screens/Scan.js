@@ -1,16 +1,15 @@
-/* eslint-disable prettier/prettier */
+/* eslint-disable*/
 'use strict';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { RNCamera } from 'react-native-camera';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-community/async-storage';
 import { connect, useSelector } from 'react-redux';
+import { useFocusEffect } from '@react-navigation/native';
 
 const Scan = (props) => {
     const isFirstOrder = useSelector((state) => state.cart.isFirstOrder);
-    const orderId = useSelector((state) => state.cart.orderId);
-
     const [shouldRenderCamera, setShouldRenderCamera] = useState(true);
     const navigate = useNavigation();
     const onBarCodeRead = async (barcodes) => {
@@ -30,31 +29,56 @@ const Scan = (props) => {
                     data: { id_point, id_establishment },
                 },
             });
+            setShouldRenderCamera(true);
+            console.log('Desmontando')
+            console.log(shouldRenderCamera)
+            console.log(isFirstOrder)
         }
     };
     useEffect(() => {
-        if (props && props.route && props.route.params) {
-            const { id_establishment, id_point } = props.route.params;
-            if (id_establishment && id_point) {
-                setShouldRenderCamera(false);
-                navigate.navigate('Order', {
-                    screen: 'Catalog',
-                    params: {
-                        data: { id_point, id_establishment },
-                    },
-                });
-            }
-        } else {
-            setShouldRenderCamera(true);
-        }
+        // if (props && props.route && props.route.params) {
+        //     const { id_establishment, id_point } = props.route.params;
+        //     if (id_establishment && id_point) {
+        //         setShouldRenderCamera(false);
+        //         navigate.navigate('Order', {
+        //             screen: 'Catalog',
+        //             params: {
+        //                 data: { id_point, id_establishment },
+        //             },
+        //         });
+        //     }
+        // } else {
+        //     setShouldRenderCamera(true);
+        // }
+        // console.log(isFirstOrder)
+        // console.log(shouldRenderCamera)
 
-        return () => {
-            console.log('desmontou scan');
-        };
     }, [props, navigate]);
+    useFocusEffect(
+        useCallback(() => {
+            if (props && props.route && props.route.params) {
+                const { id_establishment, id_point } = props.route.params;
+                if (id_establishment && id_point) {
+                    setShouldRenderCamera(false);
+                    navigate.navigate('Order', {
+                        screen: 'Catalog',
+                        params: {
+                            data: { id_point, id_establishment },
+                        },
+                    });
+                }
+            } else {
+                setShouldRenderCamera(true);
+            }
+            return () => {
+                setShouldRenderCamera(true);
+
+            };
+        }, [])
+    );
     return (
         <View style={styles.container}>
-            {shouldRenderCamera ? (
+            {shouldRenderCamera && isFirstOrder ? (
                 <RNCamera
                     style={styles.preview}
                     type={RNCamera.Constants.Type.back}
@@ -78,28 +102,7 @@ const Scan = (props) => {
                         alignContent: 'center',
                         alignItems: 'center'
                     }}>
-                        <Text>Deseja escanear outro ponto? </Text>
-                        <TouchableOpacity style={{
-                            borderColor: '#6200ee',
-                            width: 200,
-                            height: 100,
-                            borderWidth: 2,
-                            borderRadius: 5,
-                        }}
-                            onPress={() => setShouldRenderCamera(true)}
-                        >
-                            <View style={{ flexDirection: 'row', flex: 1 }}>
-
-                                <View style={{
-                                    flex: 1,
-                                    alignItems: 'center',
-                                    alignContent: 'center',
-                                    justifyContent: 'center',
-                                }}>
-                                    <Text>Sim</Text>
-                                </View>
-                            </View>
-                        </TouchableOpacity>
+                        
                     </View>
                 )}
         </View>

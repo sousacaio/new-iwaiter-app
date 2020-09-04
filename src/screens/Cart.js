@@ -263,9 +263,9 @@ const NoOrdersYetArea = (props) => {
     await AsyncStorage.removeItem('id_point');
     props.clearTheCart()
     props.finishTheOrder()
-    navigation.navigate('Home', {
-      screen: 'Conta',
-    });
+    navigation.reset({
+      routes: [{ name: 'Home' }]
+    })
   }
   return (
     <View style={styles.noOrdersYetContainer}>

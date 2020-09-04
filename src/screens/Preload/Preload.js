@@ -3,7 +3,8 @@ import React, { useEffect } from 'react';
 import {
     View,
     ActivityIndicator,
-    Text
+    Text,
+    ToastAndroid
 } from 'react-native';
 import styled from 'styled-components/native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -109,6 +110,8 @@ const Preload = (props) => {
                 await AsyncStorage.setItem('customer_id', _id);
 
                 if (id_establishment && id_point) {
+                    console.log(id_point)
+                    console.log(id_establishment)
                     ToastAndroid.showWithGravity(
                         'Catalogo carregado com sucesso',
                         ToastAndroid.SHORT,
@@ -116,13 +119,13 @@ const Preload = (props) => {
                     );
                     login();
                     console.log('eh pra ir pra comanda aberta daqui')
-                    // navigation.navigate('Comanda', {
-                    //     screen: 'Scan',
-                    //     params: {
-                    //         id_point: id_point,
-                    //         id_establishment: id_establishment,
-                    //     },
-                    // });
+                    navigation.navigate('MainTab', {
+                        screen: 'Home',
+                        params: {
+                            id_point: id_point,
+                            id_establishment: id_establishment,
+                        },
+                    });
                 } else {
                     setTimeout(() => {
                         console.log('Main tab 1')

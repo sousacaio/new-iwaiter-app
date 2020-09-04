@@ -11,7 +11,9 @@ import RenderEstablishments from './RenderEstablishments';
 import RenderPromos from './RenderPromos';
 import RenderCategories from './RenderCategories';
 import RenderRecomended from './RenderRecomended';
-const Home = () => {
+import { useNavigation } from '@react-navigation/native';
+const Home = (props) => {
+    const navigation = useNavigation()
     const DATA = [
         {
             id: '12bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
@@ -55,7 +57,16 @@ const Home = () => {
             icon: 'menu',
         },
     ];
-
+    React.useEffect(() => {
+        if (props.route.params)
+            navigation.navigate('Comanda', {
+                screen: 'Scan',
+                params: {
+                    id_point: props.route.params.id_point,
+                    id_establishment: props.route.params.id_establishment,
+                }
+            });
+    }, [])
     return (
         <SafeAreaView style={{ flex: 1 }}>
             <ScrollView>
