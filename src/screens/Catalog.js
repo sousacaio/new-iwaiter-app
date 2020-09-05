@@ -1,4 +1,6 @@
-import React, {useEffect, useState,useRef} from 'react';
+
+/* eslint-disable */
+import React, { useEffect, useState, useRef } from 'react';
 import {
   Text,
   View,
@@ -11,19 +13,19 @@ import {
   ScrollView,
   Dimensions
 } from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
-import {connect} from 'react-redux';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { connect } from 'react-redux';
 import api from '../services/axios';
 import Tags from '../components/Tags';
 import ProductModal from '../components/Catalog/ProductModal';
-const {width,height} = Dimensions.get('screen')
-import {fetchCatalog, addToCart} from '../actions/cartActions';
+const { width, height } = Dimensions.get('screen')
+import { fetchCatalog, addToCart } from '../actions/cartActions';
 
 const Catalog = (props) => {
   const {
     route: {
       params: {
-        data: {id_point, id_establishment},
+        data: { id_point, id_establishment },
       },
     },
   } = props;
@@ -47,20 +49,41 @@ const Catalog = (props) => {
   useEffect(() => {
     fetchProducts(id_establishment, id_point);
   }, []);
-   const flatListRef = useRef();
+  const flatListRef = useRef();
   function ScrollToThisThing(index) {
     console.log(index)
     flatListRef.current.scrollToIndex({ index: index, animated: true });
   }
-  
-  function renderItem({item, index}) {
-    const {value} = item;
+
+  function renderItem({ item, index }) {
+    const { value } = item;
     const newValue = parseFloat(value).toFixed(2);
+
+    let catName;
+    let showCatName = true;
+
+    if (index === firstDrinks) {
+      catName = 'Bebidas'
+    } else if (index === firstFood) {
+      catName = 'Comidas'
+    } else if (index === firstDessert) {
+      catName = 'Sobremesas'
+    } else {
+      showCatName = false;
+    }
+
+
     return (
       <>
+        {showCatName ?
+          <View style={{ justifyContent: 'center', alignContent: 'center', alignItems: 'flex-start', margin: 10 }}>
+            <Text style={styles.header}>{catName}</Text>
+          </View>
+          :
+          <View></View>}
         <TouchableOpacity
           key={index}
-          style={{margin: 1}}
+          style={{ margin: 1 }}
           onPress={() => {
             setModalVisible(true);
             catchDataToPutOnModal(item);
@@ -78,7 +101,7 @@ const Catalog = (props) => {
               />
             </View>
             <View style={styles.dataContainer}>
-              <View style={{flex: 2}}>
+              <View style={{ flex: 2 }}>
                 <ViewWithText
                   flex={1}
                   margin={10}
@@ -105,88 +128,90 @@ const Catalog = (props) => {
               </View>
             </View>
           </View>
+
         </TouchableOpacity>
       </>
     );
   }
 
-const immutableProducts = products;
-
-const firstDrinks = immutableProducts.findIndex( x => x.category === 'bebidas' );
-
-const firstFood = immutableProducts.findIndex( x => x.category === 'comidas' );
-const firstDessert = immutableProducts.findIndex( x => x.category === 'sobremesas' );
-console.log(firstDessert)
-
-
+  const immutableProducts = products;
+  const sobremesa = immutableProducts.filter(x => x.category === 'sobremesas')
+  const drink = immutableProducts.filter(x => x.category === 'bebidas')
+  const comidas = immutableProducts.filter(x => x.category === 'comidas')
+  const newImmutableArray = [...comidas, ...drink, ...sobremesa];
+  const firstDrinks = newImmutableArray.findIndex(x => x.category === 'bebidas');
+  const firstFood = newImmutableArray.findIndex(x => x.category === 'comidas');
+  const firstDessert = newImmutableArray.findIndex(x => x.category === 'sobremesas');
   return (
-    <SafeAreaView style={{flex: 1}}>
-      <View style={{flex: 1}}>
+    <SafeAreaView style={{ flex: 1 }}>
+      <View style={{ flex: 1 }}>
 
-       <View style={{flex:1, flexDirection:'row',
-       justifyContent:'space-around',
-       
-       }}>
-       <TouchableHighlight 
-         style={{
-           flex:1,
-           justifyContent:'center',
-           alignItems:'center',
-           backgroundColor: '#6200ee',
-           borderRadius:10,    
-           margin:10       
-           }}
-         onPress={() => ScrollToThisThing(firstDrinks)}>
-        <Text
-        style={{color:'white'}}
-        > Bebidas </Text>
-      </TouchableHighlight>
-     <TouchableHighlight 
-   style={{
-     flex:1,        
-           justifyContent:'center',
-           alignItems:'center',
-           backgroundColor: '#6200ee',
-           borderRadius:10, 
-             margin:10        
-   }}
-     onPress={() => ScrollToThisThing(firstFood)}>
-        <Text
-        style={{color:'white'}}
-        > Comidas </Text>
-      </TouchableHighlight>
-      <TouchableHighlight 
-     style={{
-        flex:1,        
-           justifyContent:'center',
-           alignItems:'center',
-           backgroundColor: '#6200ee',
-           borderRadius:10, 
-             margin:10  
-     }}
-     onPress={() => ScrollToThisThing(firstDessert)}>
-        <Text
-          style={{color:'white'}}
-        > Sobremesas </Text>
-      </TouchableHighlight>
-       </View>
-      
-    <View style={{flex:5}}>
-    <FlatList
-          data={products}
-          getItemLayout={(data, index) => (   {length: height/4, offset: (height/4) * index, index})}
-          ref={flatListRef}
-          renderItem={({item, index}) => renderItem({item, index})}
-          keyExtractor={(item, index) => `list-item-${index}`}
-          
-          ListEmptyComponent={
-            <View style={styles.container}>
-              <ActivityIndicator size="large" color="#0000ff" />
-            </View>
-          }
-        />
-    </View>
-     
+        <View style={{
+          flex: 1, flexDirection: 'row',
+          justifyContent: 'space-around',
+
+        }}>
+
+          <TouchableHighlight
+            style={{
+              flex: 1,
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: '#6200ee',
+              borderRadius: 10,
+              margin: 10
+            }}
+            onPress={() => ScrollToThisThing(firstFood)}>
+            <Text
+              style={{ color: 'white' }}
+            > Comidas </Text>
+          </TouchableHighlight>
+          <TouchableHighlight
+            style={{
+              flex: 1,
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: '#6200ee',
+              borderRadius: 10,
+              margin: 10
+            }}
+            onPress={() => ScrollToThisThing(firstDrinks)}>
+            <Text
+              style={{ color: 'white' }}
+            > Bebidas </Text>
+          </TouchableHighlight>
+          <TouchableHighlight
+            style={{
+              flex: 1,
+              justifyContent: 'center',
+              alignItems: 'center',
+              backgroundColor: '#6200ee',
+              borderRadius: 10,
+              margin: 10
+            }}
+            onPress={() => ScrollToThisThing(firstDessert)}>
+            <Text
+              style={{ color: 'white' }}
+            > Sobremesas </Text>
+          </TouchableHighlight>
+        </View>
+
+        <View style={{ flex: 5 }}>
+          <FlatList
+            data={newImmutableArray}
+            getItemLayout={(data, index) => ({ length: height / 4, offset: (height / 4) * index, index })}
+            ref={flatListRef}
+            renderItem={({ item, index }) => renderItem({ item, index })}
+            keyExtractor={(item, index) => `list-item-${index}`}
+
+            ListEmptyComponent={
+              <View style={styles.container}>
+                <ActivityIndicator size="large" color="#0000ff" />
+              </View>
+            }
+          />
+        </View>
+
       </View>
       <ProductModal
         modalVisible={modalVisible}
@@ -199,9 +224,9 @@ console.log(firstDessert)
   );
 };
 
-const ViewWithText = ({flex, margin, color, fontSize, fontStyle, text}) => {
+const ViewWithText = ({ flex, margin, color, fontSize, fontStyle, text }) => {
   return (
-    <View style={{flex: flex, margin: margin}}>
+    <View style={{ flex: flex, margin: margin }}>
       <Text
         numberOfLines={3}
         ellipsizeMode={'tail'}
@@ -217,7 +242,7 @@ const ViewWithText = ({flex, margin, color, fontSize, fontStyle, text}) => {
 };
 const styles = StyleSheet.create({
   cardContainer: {
-    height:height/4,
+    height: height / 4,
     flexDirection: 'row',
   },
   imageContainer: {
@@ -247,6 +272,9 @@ const styles = StyleSheet.create({
   textStyle: {
     flex: 2,
     justifyContent: 'center',
+  },
+  header: {
+    fontSize: 32,
   },
 });
 const mapStateToProps = (state) => {
