@@ -183,8 +183,8 @@ const MyOrdersModal = ({
                                 numberOfLines={2}
                                 ellipsizeMode="tail"
                                 style={styles.nameText}>
-                                Seus pedidos
-              </Text>
+                                Sua comanda:
+                            </Text>
                         </View>
                     </View>
                     <View style={{ flex: 4 }}>
@@ -192,6 +192,7 @@ const MyOrdersModal = ({
                             <SafeAreaView>
                                 {items.length > 0 ? (
                                     <FlatList
+                                   
                                         refreshControl={
                                             <RefreshControl
                                                 colors={['#6200ee']}
@@ -228,8 +229,8 @@ const MyOrdersModal = ({
                                         adjustsFontSizeToFit={true}
                                         style={{ color: '#A6A6A6', fontSize: 30 }}>
                                         {' '}
-                    Total
-                  </Text>
+                                         Total
+                                    </Text>
                                 </View>
                                 <View style={{ flex: 2 }}>
                                     <Text

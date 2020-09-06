@@ -1,4 +1,3 @@
-
 /* eslint-disable */
 import React, { useEffect, useState, useRef } from 'react';
 import {
@@ -46,6 +45,7 @@ const Catalog = (props) => {
     setProducts(ctlg.data.data.catalog);
     sendToReducer(ctlg.data.data.catalog);
   }
+
   useEffect(() => {
     fetchProducts(id_establishment, id_point);
   }, []);

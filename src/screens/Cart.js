@@ -1,5 +1,5 @@
 /* eslint-disable */
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import {
   View,
   Text,
@@ -30,7 +30,7 @@ import CheckoutModal from '../components/Cart/CheckoutModal';
 import MyOrdersModal from '../components/Cart/MyOrdersModal';
 import PaymentModal from '../components/Cart/PaymentModal';
 import HasOrderedArea from './Cart/HasOrderedArea'
-
+import { useFocusEffect } from '@react-navigation/native';
 
 const { width, height } = Dimensions.get('screen');
 const Cart = (props) => {
@@ -78,6 +78,7 @@ const Cart = (props) => {
     loadAsyncStorageData();
   }, [modalVisible, visibilityMyOrders]);
   useEffect(() => { }, [items]);
+
   return (
     <SafeAreaView style={{ flex: 1 }}>
       <View style={{ flex: 1 }}>
@@ -151,109 +152,6 @@ const Cart = (props) => {
     </SafeAreaView>
   );
 };
-
-// const HasOrderedArea = (props) => {
-//   const stateOrders = useSelector(state => state.cart.orderedItems)
-//   const ordersLength = props.ordered.length;
-//   const somar = (acumulado, x) => acumulado + x;
-//   const valores = props.ordered.map((item) => {
-//     if (item.confirmed === 1) {
-//       return item.value * item.quantity;
-//     } else {
-//       return 0;
-//     }
-//   });
-//   const confirmedItens = stateOrders.filter((item) => { return item.confirmed !== 0 })
-//   const resetReduxStateCart = () => {
-//     dispatch(finishOrder());
-//   };
-//   async function deleteCredentials() {
-//     await AsyncStorage.removeItem('order_id');
-//     await AsyncStorage.removeItem('id_establishment');
-//     await AsyncStorage.removeItem('id_point');
-//     await AsyncStorage.removeItem('isFirstOrder');
-//     resetReduxStateCart();
-//     console.log(cart);
-//   }
-//   const dispatch = useDispatch()
-//   const orderId = useSelector((state) => state.cart.orderId);
-//   const storeNewOrders2 = (orders) => {
-//     dispatch(storeOrderedItems(orders));
-//   };
-//   const checkData = async () => {
-//     const res = await api.get(`orders/getById/${orderId}`);
-//     const { data: { status, message, response: { data: { orders } } } } = res;
-//     storeNewOrders2(orders)
-//     if (status === 200) {
-//       const checkActualizedOrders = orders.filter((item) => { return item.confirmed !== 0 })
-//       if (checkActualizedOrders.length > 0) {
-//         Alert.alert('Cancelamento não é possível', 'Um dos seus pedidos já foi confirmado ou está em espera.')
-//       } else {
-//         //deleteCredentials()
-//         Alert.alert('Cancelamento efetuado com sucesso',
-//           'Você sera redirecionado para a tela inicial e o restaurante será notificado sobre o seu cancelamento.')
-//       }
-//     } else {
-//       Alert.alert('Erro', message)
-//     }
-//   }
-
-//   console.log(confirmedItens.length)
-//   return (
-//     <View style={styles.noOrdersYetContainer}>
-//       <View style={{ flex: 2 }}>
-//         <View style={{ flex: 1 }}>
-//           <TouchableOpacity
-//             style={styles.noOrdersYetButton}
-//             onPress={() => {
-//               props.setVisibilityMyOrders(true);
-//             }}>
-//             <Text style={{ color: '#6200ee' }}>Meus Pedidos({ordersLength})</Text>
-//           </TouchableOpacity>
-//         </View>
-//         {confirmedItens.length > 0
-//           ? <View style={{ flex: 1 }}>
-//             <TouchableOpacity
-//               style={styles.noOrdersYetButton}
-//               onPress={() => checkData()}
-//             >
-//               <Text style={{ color: '#6200ee' }}>Cancelar</Text>
-//             </TouchableOpacity>
-//           </View> : null
-//         }
-
-
-//         <View style={{ flex: 1, flexDirection: 'row' }}>
-//           {/* Aqui vai vir o total do carrinho */}
-//           <TouchableOpacity
-//             style={styles.noOrdersYetButton}
-//             onPress={() => {
-//               props.setModalVisible(true);
-//             }}>
-//             <Text style={{ color: '#6200ee' }}>
-//               Carrinho(R$ {props.totalCart.toFixed(2)})
-//             </Text>
-//           </TouchableOpacity>
-//           {/* Aqui vai vir o total do carrinho + o q ja foi pedido */}
-//           <TouchableOpacity
-//             style={styles.noOrdersYetButton}
-//             onPress={() => {
-//               props.setVisibilityPaymentModal(true);
-//             }}>
-//             <Text style={{ color: '#6200ee' }}>
-//               Fechar(R${' '}
-//               {props.ordered.length > 0
-//                 ? (valores.reduce(somar) + props.total).toFixed(2)
-//                 : 0}
-//               )
-//             </Text>
-//           </TouchableOpacity>
-//         </View>
-//       </View>
-//     </View>
-//   );
-// };
-
 
 const NoOrdersYetArea = (props) => {
   const navigation = useNavigation();
