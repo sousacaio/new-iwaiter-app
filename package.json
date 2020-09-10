@@ -17,6 +17,7 @@
     "@react-native-community/checkbox": "^0.5.0",
     "@react-native-community/masked-view": "^0.1.10",
     "@react-navigation/bottom-tabs": "^5.7.2",
+    "@react-navigation/drawer": "^5.9.0",
     "@react-navigation/material-top-tabs": "^5.2.14",
     "@react-navigation/native": "^5.7.1",
     "@react-navigation/stack": "^5.7.1",

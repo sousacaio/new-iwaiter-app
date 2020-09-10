@@ -198,6 +198,7 @@ const Preload = (props) => {
     }
     useEffect(() => {
         getInfoFromStorage();
+        bringUserInfo()
         loginApi();
     }, [])
     return (

@@ -11,11 +11,34 @@ import SignUp from '../screens/SignUp';
 import Scan from '../screens/Scan';
 import Catalog from '../screens/Catalog';
 import Cart from '../screens/Cart';
-import { useAuth } from '../services/authContext'
-    ;
+import History from '../screens/History/History';
+import { useAuth } from '../services/authContext';
+import {
+    createDrawerNavigator,
+    DrawerContentScrollView,
+    DrawerItemList,
+    DrawerItem,
+} from '@react-navigation/drawer';
+import Animated from 'react-native-reanimated';
+
 const TopTab = createMaterialTopTabNavigator();
 const Stack = createStackNavigator();
 const Tab = createBottomTabNavigator();
+const Drawer = createDrawerNavigator();
+
+
+function HistoryStack() {
+    return (
+        <Drawer.Navigator          >
+            <Drawer.Screen name="Home" component={Home} />
+            <Drawer.Screen
+                name="History"
+                component={History}
+                options={{ drawerLabel: 'Histórico' }}
+            />
+        </Drawer.Navigator>
+    );
+}
 function OrderStack() {
     return (
         <TopTab.Navigator>
@@ -61,7 +84,7 @@ export default function MainTab() {
             tabBar={props => <CustomTabBar {...props} />}
             screenOptions={{ headerShown: false }}
         >
-            <Tab.Screen name="Home" component={Home} />
+            <Tab.Screen name="Home" component={HistoryStack} />
             {status === 'signOut' ? null : (
                 <Tab.Screen name="Comanda" component={ScanStack} />
             )}
