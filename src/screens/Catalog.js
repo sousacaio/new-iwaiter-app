@@ -9,8 +9,8 @@ import {
   StyleSheet,
   ActivityIndicator,
   TouchableHighlight,
-  ScrollView,
-  Dimensions
+  Dimensions,
+  ToastAndroid
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { connect } from 'react-redux';
@@ -42,8 +42,26 @@ const Catalog = (props) => {
   };
   async function fetchProducts(est, poin) {
     const ctlg = await api.get(`orders/${est}/verify/${poin}`);
-    setProducts(ctlg.data.data.catalog);
-    sendToReducer(ctlg.data.data.catalog);
+    const { data: { success, data, message } } = ctlg;
+    if (success) {
+      ToastAndroid.show(
+        message,
+        ToastAndroid.LONG,
+        ToastAndroid.BOTTOM,
+      );
+      setProducts(ctlg.data.data.catalog);
+      sendToReducer(ctlg.data.data.catalog);
+    } else {
+      ToastAndroid.show(
+        message,
+        ToastAndroid.LONG,
+        ToastAndroid.BOTTOM,
+      );
+      setProducts([]);
+      sendToReducer([]);
+    }
+
+
   }
 
   useEffect(() => {

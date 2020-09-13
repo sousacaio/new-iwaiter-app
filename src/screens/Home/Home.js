@@ -1,5 +1,5 @@
 /* eslint-disable */
-import React from 'react';
+import React, { useEffect } from 'react';
 import {
     View,
     Text,
@@ -12,6 +12,8 @@ import RenderPromos from './RenderPromos';
 import RenderCategories from './RenderCategories';
 import RenderRecomended from './RenderRecomended';
 import { useNavigation } from '@react-navigation/native';
+import AsyncStorage from '@react-native-community/async-storage';
+
 const Home = (props) => {
     const navigation = useNavigation()
     const DATA = [
@@ -57,15 +59,22 @@ const Home = (props) => {
             icon: 'menu',
         },
     ];
-    React.useEffect(() => {
-        if (props.route.params)
+    async function checkCredentials() {
+        const est = await AsyncStorage.getItem('id_establishment')
+        const point = await AsyncStorage.getItem('id_point')
+        if (est && point) {
             navigation.navigate('Comanda', {
                 screen: 'Scan',
                 params: {
-                    id_point: props.route.params.id_point,
-                    id_establishment: props.route.params.id_establishment,
+                    id_establishment: est,
+                    id_point: point
                 }
             });
+        }
+    }
+    useEffect(() => {
+        checkCredentials()
+        console.log(JSON.stringify(props, null, '\t'))
     }, [])
     return (
         <SafeAreaView style={{ flex: 1 }}>

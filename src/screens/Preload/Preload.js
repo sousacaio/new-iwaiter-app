@@ -110,21 +110,12 @@ const Preload = (props) => {
                 await AsyncStorage.setItem('customer_id', _id);
 
                 if (id_establishment && id_point) {
-                    console.log(id_point)
-                    console.log(id_establishment)
-                    ToastAndroid.showWithGravity(
-                        'Catalogo carregado com sucesso',
-                        ToastAndroid.SHORT,
-                        ToastAndroid.CENTER
-                    );
+                   
                     login();
                     console.log('eh pra ir pra comanda aberta daqui')
                     navigation.navigate('MainTab', {
-                        screen: 'Home',
-                        params: {
-                            id_point: id_point,
-                            id_establishment: id_establishment,
-                        },
+                        name: 'Home',
+                        params: {}
                     });
                 } else {
                     setTimeout(() => {
