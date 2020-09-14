@@ -25,6 +25,7 @@ const NoOrdersYetArea = (props) => {
         await AsyncStorage.removeItem('order_id');
         await AsyncStorage.removeItem('id_establishment');
         await AsyncStorage.removeItem('id_point');
+        await AsyncStorage.removeItem('isFirstOrder');
         props.clearTheCart()
         props.finishTheOrder()
         navigation.navigate('Home', {

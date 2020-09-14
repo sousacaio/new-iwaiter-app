@@ -115,6 +115,8 @@ const Cart = (props) => {
               setVisibilityPaymentModal={setVisibilityPaymentModal}
               setModalVisible={setModalVisible}
               storeNewOrders={storeNewOrders}
+              finishTheOrder={finishTheOrder}
+              clearTheCart={clearTheCart}
             />
           ) : (
               <NoOrdersYetArea

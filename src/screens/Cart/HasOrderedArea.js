@@ -12,7 +12,7 @@ import { useSelector, useDispatch, connect } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import {
     storeOrderedItems,
-    finishOrder
+
 } from '../../actions/cartActions';
 
 import AsyncStorage from '@react-native-community/async-storage';
@@ -21,11 +21,12 @@ const { width, height } = Dimensions.get('screen');
 const HasOrderedArea = (props) => {
     const [idEst, setIdEst] = useState()
     const stateOrders = useSelector((state) => state.cart.orderedItems);
+    const cartState = useSelector((state) => state.cart);
     const stateCart = useSelector((state) => state.cart.addedItems);
     const badgeConfirmed = stateOrders.filter((item) => item.confirmed === 1)
     const badgeCanceled = stateOrders.filter((item) => item.confirmed === 2)
     const badgeWaiting = stateOrders.filter((item) => item.confirmed === 0)
-    const somar = (acumulado, x) => acumulado + x;
+    const somar = (acumulado, x) => (acumulado + x, 0);
     const valores = props.ordered.map((item) => {
         if (item.confirmed === 1) {
             return item.value * item.quantity;
@@ -41,17 +42,15 @@ const HasOrderedArea = (props) => {
         }
     });
     const unscrambleAdded = valoresCart[0];
-    const unscrambleOrdered = valores.reduce(somar)
+    let unscrambleOrdered = 0;
+    valoresCart ? unscrambleOrdered = valores.reduce((a, b) => a + b, 0) : unscrambleOrdered = 0;
     const confirmedItens = stateOrders.filter((item) => { return item.confirmed !== 0 });
-    const resetReduxStateCart = () => {
-        dispatch(finishOrder());
-    };
+
     async function deleteCredentials() {
         await AsyncStorage.removeItem('order_id');
         await AsyncStorage.removeItem('id_establishment');
         await AsyncStorage.removeItem('id_point');
         await AsyncStorage.removeItem('isFirstOrder');
-        resetReduxStateCart();
 
     }
     const navigation = useNavigation();
@@ -62,44 +61,56 @@ const HasOrderedArea = (props) => {
     const storeNewOrders2 = (orders) => {
         dispatch(storeOrderedItems(orders));
     };
+    console.log('Cart antes')
+    console.log(JSON.stringify(cartState.isFirstOrder, null, '\t'))
+    useEffect(() => { }, [cartState])
     const checkData = async () => {
-        const res = await api.get(`orders/getById/${orderId}`);
-        const {
-            data: {
-                status,
-                message,
-                response: {
-                    data: { orders },
+        try {
+            const res = await api.get(`orders/getById/${orderId}`);
+            const {
+                data: {
+                    status,
+                    message,
+                    response: {
+                        data: { orders },
+                    },
                 },
-            },
-        } = res;
-        storeNewOrders2(orders);
-        if (status === 200) {
-            const checkActualizedOrders = orders.filter((item) => {
-                return item.confirmed !== 0;
-            });
-            if (checkActualizedOrders.length > 0) {
-                Alert.alert(
-                    'Cancelamento não é possível',
-                    'Um dos seus pedidos já foi confirmado ou está em espera.',
-                );
-            } else {
-                const res = await api.post(`orders/${orderId}/cancelOrder/${idEst}/${customerId}`);
-                const { data: { message, status } } = res;
-                if (status === 200) {
+            } = res;
+            storeNewOrders2(orders);
+            if (status === 200) {
+                const checkActualizedOrders = orders.filter((item) => {
+                    return item.confirmed !== 0;
+                });
+                if (checkActualizedOrders.length > 0) {
                     Alert.alert(
-                        message,
-                        'Você sera redirecionado para a tela inicial e o restaurante será notificado sobre o seu cancelamento.',
+                        'Cancelamento não é possível',
+                        'Um dos seus pedidos já foi confirmado ou está em espera.',
                     );
-                    deleteCredentials()
-                    navigation.navigate('Home', {
-                        screen: 'Conta',
-                    });
-                }
+                } else {
+                    const res = await api.post(`orders/${orderId}/cancelOrder/${idEst}/${customerId}`);
+                    const { data: { message, status } } = res;
+                    if (status === 200) {
+                        if (cartState.isFirstOrder === false) {
+                            await AsyncStorage.removeItem('order_id');
+                            await AsyncStorage.removeItem('id_establishment');
+                            await AsyncStorage.removeItem('id_point');
+                            await AsyncStorage.removeItem('isFirstOrder');
+                            props.clearTheCart()
+                            props.finishTheOrder()
+                            navigation.navigate('Scan');
+                        }
+                    } else {
+                        console.log('Erro')
+                    }
 
+                }
+            } else {
+                console.log('caio no erro')
+                Alert.alert('Erro', message);
             }
-        } else {
-            Alert.alert('Erro', message);
+        } catch (error) {
+            props.clearTheCart()
+            props.finishTheOrder()
         }
     };
 
@@ -108,7 +119,7 @@ const HasOrderedArea = (props) => {
     }
     useEffect(() => {
         getAsyncData()
-    }, [])
+    }, [cartState])
     const confirmedOrders = stateOrders.filter((item) => { return item.confirmed === 1 })
     console.log(confirmedOrders)
     return (

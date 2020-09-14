@@ -28,14 +28,17 @@ const Drawer = createDrawerNavigator();
 
 
 function HistoryStack() {
+    const { status } = useAuth();
     return (
         <Drawer.Navigator          >
             <Drawer.Screen name="Home" component={Home} />
-            <Drawer.Screen
-                name="History"
-                component={History}
-                options={{ drawerLabel: 'Histórico' }}
-            />
+            {status === 'signOut' ? null : (
+                <Drawer.Screen
+                    name="History"
+                    component={History}
+                    options={{ drawerLabel: 'Histórico' }}
+                />
+            )}
         </Drawer.Navigator>
     );
 }

@@ -27,6 +27,7 @@ const cartReducer = (state = initState, action) => {
     if (action.type === FINISH_ORDER) {
         return {
             ...state,
+            isFirstOrder: true,
             items: [],
             addedItems: [],
             orderedItems: [],
@@ -34,7 +35,6 @@ const cartReducer = (state = initState, action) => {
             totalCart: 0,
             totalOrder: 0,
             hasOrdered: false,
-            isFirstOrder: true,
             orderId: '',
         };
     }

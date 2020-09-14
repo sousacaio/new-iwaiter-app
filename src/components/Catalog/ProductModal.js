@@ -108,7 +108,7 @@ const ProductModal = ({
                                             ToastAndroid.showWithGravityAndOffset(
                                                 `${dataToPutOnModal.name} foi adicionado a seu carrinho`,
                                                 ToastAndroid.LONG,
-                                                ToastAndroid.BOTTOM,
+                                                ToastAndroid.CENTER,
                                                 25,
                                                 50,
                                             );

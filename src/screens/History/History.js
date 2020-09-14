@@ -16,7 +16,6 @@ import moment from "moment";
 import "moment/locale/pt-br";
 import { TouchableHighlight } from 'react-native-gesture-handler';
 import DetailOrder from './DetailOrder'
-import Item from './Item';
 import HistoryItem from './HistoryItem';
 import SwapIcon from 'react-native-vector-icons/Ionicons'
 
@@ -105,10 +104,12 @@ const History = (props) => {
                             }
                         });
                         return (
-                            <TouchableHighlight onPress={() => {
-                                setData(item);
-                                setVisibility(!visibilityModal);
-                            }}>
+                            <TouchableHighlight
+                                key={index}
+                                onPress={() => {
+                                    setData(item);
+                                    setVisibility(!visibilityModal);
+                                }}>
                                 < HistoryItem
                                     key={index}
                                     isClosed={isClosed}

@@ -14,7 +14,7 @@ const PaymentModal = ({ visibilityPaymentModal, setVisibilityPaymentModal }) => 
     const cart = useSelector((state) => state.cart);
     const dispatch = useDispatch();
     const navigation = useNavigation();
-        const resetReduxStateCart = () => {
+    const resetReduxStateCart = () => {
         dispatch(finishOrder());
     };
     async function deleteCredentials() {
@@ -35,6 +35,7 @@ const PaymentModal = ({ visibilityPaymentModal, setVisibilityPaymentModal }) => 
         if (status === 200) {
             const { data: { isClosed } } = response
             if (isClosed === true) {
+               
                 Alert.alert(
                     'Pagamento',
                     message,
@@ -42,10 +43,9 @@ const PaymentModal = ({ visibilityPaymentModal, setVisibilityPaymentModal }) => 
                         {
                             text: 'OK',
                             onPress: () => {
+                                setVisibilityPaymentModal(!visibilityPaymentModal)
                                 deleteCredentials();
-                                navigation.navigate('Home', {
-                                    screen: 'Conta',
-                                });
+                                navigation.navigate('Scan')
                             },
                         },
                     ],
