@@ -1,130 +1,62 @@
-/* eslint-disable */
-import React, { useEffect } from 'react';
-import {
-    View,
-    Text,
-    ScrollView,
-    FlatList,
-} from 'react-native';
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, { useEffect, useState } from 'react';
+import { View, Text, ScrollView, FlatList, ToastAndroid } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import RenderEstablishments from './RenderEstablishments';
-import RenderPromos from './RenderPromos';
-import RenderCategories from './RenderCategories';
-import RenderRecomended from './RenderRecomended';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-community/async-storage';
-
+import { bringAllEstablishments } from '../../utils/home/home';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 const Home = (props) => {
-    const navigation = useNavigation()
-    const DATA = [
-        {
-            id: '12bd7acbea-c1b1-46c2-aed5-3ad53abb28ba',
-            title: 'First Item',
+  const navigation = useNavigation();
+
+  async function checkCredentials() {
+    const est = await AsyncStorage.getItem('id_establishment');
+    const point = await AsyncStorage.getItem('id_point');
+    if (est && point) {
+      navigation.navigate('Comanda', {
+        screen: 'Scan',
+        params: {
+          id_establishment: est,
+          id_point: point,
         },
-        {
-            id: '233ac68afc-c605-48d3-a4f8-fbd91aa97f63',
-            title: 'Second Item',
-        },
-        {
-            id: '33358694a0f-3da1-471f-bd96-145571e29d72',
-            title: 'Third Item',
-        },
-        {
-            id: '333358694a0f-3da1-471f-bd96-145571e329d72',
-            title: 'Third Item',
-        },
-        {
-            id: '5658694a0f-3da1-471f-bd96-1425571e29d72',
-            title: 'Third Item',
-        },
-        {
-            id: '8958694a0f-3da1-471f-bd96-145571e29d72',
-            title: 'Third Item',
-        },
-    ];
-    const categories = [
-        {
-            id: '1',
-            name: 'Bebidas',
-            icon: 'menu',
-        },
-        {
-            id: '2',
-            name: 'Comidas',
-            icon: 'menu',
-        },
-        {
-            id: '3',
-            name: 'Sobremesas',
-            icon: 'menu',
-        },
-    ];
-    async function checkCredentials() {
-        const est = await AsyncStorage.getItem('id_establishment')
-        const point = await AsyncStorage.getItem('id_point')
-        if (est && point) {
-            navigation.navigate('Comanda', {
-                screen: 'Scan',
-                params: {
-                    id_establishment: est,
-                    id_point: point
-                }
-            });
-        }
+      });
     }
-    useEffect(() => {
-        checkCredentials()
-        console.log(JSON.stringify(props, null, '\t'))
-    }, [])
-    return (
-        <SafeAreaView style={{ flex: 1 }}>
-            <ScrollView>
-                <View style={{ flex: 1, margin: 10 }}>
-                    <Text style={{ fontSize: 30 }}>Restaurantes parceiros:</Text>
-                    <FlatList
-                        horizontal={true}
-                        data={DATA}
-                        renderItem={(item) => {
-                            return <RenderEstablishments title={item.title} />;
-                        }}
-                        keyExtractor={(item) => item.id}
-                    />
-                </View>
-                <View style={{ flex: 1, margin: 10 }}>
-                    <Text style={{ fontSize: 30 }}>Promoções:</Text>
-                    <FlatList
-                        horizontal={true}
-                        data={DATA}
-                        renderItem={(item) => {
-                            return <RenderPromos title={item.title} />;
-                        }}
-                        keyExtractor={(item) => item.id}
-                    />
-                </View>
-                <View style={{ flex: 1, margin: 10 }}>
-                    <Text style={{ fontSize: 30 }}>Categorias:</Text>
-                    <FlatList
-                        horizontal={true}
-                        data={categories}
-                        renderItem={({ item }) => {
-                            return <RenderCategories iconName={item.icon} name={item.name} />;
-                        }}
-                        keyExtractor={(item) => item.id}
-                    />
-                </View>
-                <View style={{ flex: 1, margin: 10 }}>
-                    <Text style={{ fontSize: 30 }}>Recomendados:</Text>
-                    <FlatList
-                        horizontal={true}
-                        data={DATA}
-                        renderItem={(item) => {
-                            return <RenderRecomended />;
-                        }}
-                        keyExtractor={(item) => item.id}
-                    />
-                </View>
-            </ScrollView>
-        </SafeAreaView>
-    );
+  }
+
+  const doBringAllEst = async () => {
+    const res = await bringAllEstablishments();
+    // console.log(JSON.stringify(res, null, '\t'));
+    const { success, establishments, message } = res;
+    if (success) {
+      // console.log(JSON.stringify(establishments, null, '\t'));
+      setEstInfo(establishments);
+    } else {
+      ToastAndroid.show(message, ToastAndroid.LONG, ToastAndroid.BOTTOM);
+    }
+  };
+  useEffect(() => {
+    checkCredentials();
+    doBringAllEst();
+  }, []);
+
+  const [estInfo, setEstInfo] = useState([]);
+  return (
+    <SafeAreaView style={{ flex: 1 }}>
+      <View style={{ flex: 1, margin: 10 }}>
+        <Text style={{ fontSize: 30 }}>Restaurantes parceiros:</Text>
+        <FlatList
+          data={estInfo}
+          renderItem={(item) => {
+            return (
+              <TouchableOpacity onPress={()=>navigation.navigate('DetailEstablishment',{item:item.item})}>
+                <RenderEstablishments name={item.item.name} />
+              </TouchableOpacity>)
+          }}
+          keyExtractor={(item) => item._id}
+        />
+      </View>
+    </SafeAreaView>
+  );
 };
 export default Home;

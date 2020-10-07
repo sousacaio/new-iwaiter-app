@@ -1,31 +1,25 @@
-/* eslint-disable */
 import React from 'react';
-import {
-    View,
-    Text,
-    Dimensions
-} from 'react-native';
+import {View, Text} from 'react-native';
 export const EmptyCart = () => {
-    return (
-        <View
-            style={{
-                flex: 1,
-                alignItems: 'center',
-                justifyContent: 'center',
-                marginTop: 50,
-            }}>
-            <Text>Carrinho vazio</Text>
-        </View>
-    );
+  return (
+    <View
+      style={{
+        flex: 1,
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: 50,
+      }}>
+      <Text>Carrinho vazio</Text>
+    </View>
+  );
 };
 export const Container = (props) => {
-    return (
-        <View
-            style={{
-                flex: props.flex
-            }}>
-            {props.children}
-        </View>
-    );
+  return (
+    <View
+      style={{
+        flex: props.flex,
+      }}>
+      {props.children}
+    </View>
+  );
 };
-

@@ -3,8 +3,6 @@ module.exports = {
   jsxBracketSameLine: true,
   singleQuote: true,
   trailingComma: 'all',
-  endOfLine: "auto",
-  "prettier/prettier": ["error", {
-    endOfLine: "auto"
-  }],
+  indent: ["error", 2],
+  endOfLine: "auto"
 };

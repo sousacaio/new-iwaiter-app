@@ -1,5 +1,5 @@
-/* eslint-disable */
-import React, { useEffect, useState, useRef } from 'react';
+/* eslint-disable react-hooks/exhaustive-deps */
+import React, {useEffect, useState, useRef} from 'react';
 import {
   Text,
   View,
@@ -10,24 +10,26 @@ import {
   ActivityIndicator,
   TouchableHighlight,
   Dimensions,
-  ToastAndroid
+  ToastAndroid,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { connect } from 'react-redux';
-import api from '../services/axios';
-import Tags from '../components/Tags';
-import ProductModal from '../components/Catalog/ProductModal';
-const { width, height } = Dimensions.get('screen')
-import { fetchCatalog, addToCart } from '../actions/cartActions';
+import {SafeAreaView} from 'react-native-safe-area-context';
+import {connect} from 'react-redux';
+import Tags from '../../components/Tags';
+import ProductModal from '../../components/Catalog/ProductModal';
+const {height} = Dimensions.get('screen');
+import {fetchCatalog, addToCart} from '../../actions/cartActions';
+import {API_URL} from '../../../env';
+import {openCatalog} from '../../utils/catalog/catalog';
 
 const Catalog = (props) => {
   const {
     route: {
       params: {
-        data: { id_point, id_establishment },
+        data: {id_point, id_establishment},
       },
     },
   } = props;
+
   const [products, setProducts] = useState([]);
   const [dataToPutOnModal, setDataToPutOnModal] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
@@ -40,72 +42,67 @@ const Catalog = (props) => {
   const catchDataToPutOnModal = (data) => {
     setDataToPutOnModal(data);
   };
-  async function fetchProducts(est, poin) {
-    const ctlg = await api.get(`orders/${est}/verify/${poin}`);
-    const { data: { success, data, message } } = ctlg;
-    if (success) {
-      ToastAndroid.show(
-        message,
-        ToastAndroid.LONG,
-        ToastAndroid.BOTTOM,
-      );
-      setProducts(ctlg.data.data.catalog);
-      sendToReducer(ctlg.data.data.catalog);
-    } else {
-      ToastAndroid.show(
-        message,
-        ToastAndroid.LONG,
-        ToastAndroid.BOTTOM,
-      );
-      setProducts([]);
-      sendToReducer([]);
-    }
-
-
+  async function fetchProducts() {
+    const result = await openCatalog(id_establishment, id_point);
+    const {message, catalog} = result;
+    ToastAndroid.show(message, ToastAndroid.LONG, ToastAndroid.BOTTOM);
+    setProducts(catalog);
+    sendToReducer(catalog);
   }
 
   useEffect(() => {
-    fetchProducts(id_establishment, id_point);
+    fetchProducts();
   }, []);
+
   const flatListRef = useRef();
   function ScrollToThisThing(index) {
-    console.log(index)
-    flatListRef.current.scrollToIndex({ index: index, animated: true });
+    console.log(index);
+    flatListRef.current.scrollToIndex({index: index, animated: true});
   }
 
-  function renderItem({ item, index }) {
-    const { value } = item;
+  function renderItem({item, index}) {
+    const {value} = item;
     const newValue = parseFloat(value).toFixed(2);
 
     let catName;
     let showCatName = true;
 
     if (index === firstDrinks) {
-      catName = 'Bebidas'
+      catName = 'Bebidas';
     } else if (index === firstFood) {
-      catName = 'Comidas'
+      catName = 'Comidas';
     } else if (index === firstDessert) {
-      catName = 'Sobremesas'
+      catName = 'Sobremesas';
     } else {
       showCatName = false;
     }
 
+    const photoUri = API_URL + item.photo;
 
     return (
       <>
-        {showCatName ?
-          <View style={{ justifyContent: 'center', alignContent: 'center', alignItems: 'flex-start', margin: 10 }}>
+        {showCatName ? (
+          <View
+            style={{
+              justifyContent: 'center',
+              alignContent: 'center',
+              alignItems: 'flex-start',
+              margin: 10,
+            }}>
             <Text style={styles.header}>{catName}</Text>
           </View>
-          :
-          <View></View>}
+        ) : (
+          <View />
+        )}
+
         <TouchableOpacity
           key={index}
-          style={{ margin: 1 }}
+          style={{margin: 1}}
           onPress={() => {
             setModalVisible(true);
             catchDataToPutOnModal(item);
-          }}>
+          }}
+        >
           <View style={styles.cardContainer}>
             <View style={styles.imageContainer}>
               <Image
@@ -113,13 +110,13 @@ const Catalog = (props) => {
                 style={styles.imageStyle}
                 source={{
                   uri: item.photo
-                    ? `http://192.168.15.5:3000/${item.photo}`
+                    ? photoUri
                     : 'https://img.elo7.com.br/product/zoom/22565B3/adesivo-parede-prato-comida-frango-salada-restaurante-lindo-adesivo-parede.jpg',
                 }}
               />
             </View>
             <View style={styles.dataContainer}>
-              <View style={{ flex: 2 }}>
+              <View style={{flex: 2}}>
                 <ViewWithText
                   flex={1}
                   margin={10}
@@ -146,82 +143,65 @@ const Catalog = (props) => {
               </View>
             </View>
           </View>
-
         </TouchableOpacity>
       </>
     );
   }
 
   const immutableProducts = products;
-  const sobremesa = immutableProducts.filter(x => x.category === 'sobremesas')
-  const drink = immutableProducts.filter(x => x.category === 'bebidas')
-  const comidas = immutableProducts.filter(x => x.category === 'comidas')
+  const sobremesa = immutableProducts.filter(
+    (x) => x.category === 'sobremesas',
+  );
+  const drink = immutableProducts.filter((x) => x.category === 'bebidas');
+  const comidas = immutableProducts.filter((x) => x.category === 'comidas');
   const newImmutableArray = [...comidas, ...drink, ...sobremesa];
-  const firstDrinks = newImmutableArray.findIndex(x => x.category === 'bebidas');
-  const firstFood = newImmutableArray.findIndex(x => x.category === 'comidas');
-  const firstDessert = newImmutableArray.findIndex(x => x.category === 'sobremesas');
+
+  const firstDrinks = newImmutableArray.findIndex(
+    (x) => x.category === 'bebidas',
+  );
+  const firstFood = newImmutableArray.findIndex(
+    (x) => x.category === 'comidas',
+  );
+  const firstDessert = newImmutableArray.findIndex(
+    (x) => x.category === 'sobremesas',
+  );
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <View style={{ flex: 1 }}>
-
-        <View style={{
-          flex: 1, flexDirection: 'row',
-          justifyContent: 'space-around',
-
-        }}>
-
+    <SafeAreaView style={{flex: 1}}>
+      <View style={{flex: 1}}>
+        <View
+          style={{
+            flex: 1,
+            flexDirection: 'row',
+            justifyContent: 'space-around',
+          }}>
           <TouchableHighlight
-            style={{
-              flex: 1,
-              justifyContent: 'center',
-              alignItems: 'center',
-              backgroundColor: '#6200ee',
-              borderRadius: 10,
-              margin: 10
-            }}
+            style={styles.touchableHigh}
             onPress={() => ScrollToThisThing(firstFood)}>
-            <Text
-              style={{ color: 'white' }}
-            > Comidas </Text>
+            <Text style={{color: 'white'}}> Comidas </Text>
           </TouchableHighlight>
           <TouchableHighlight
-            style={{
-              flex: 1,
-              justifyContent: 'center',
-              alignItems: 'center',
-              backgroundColor: '#6200ee',
-              borderRadius: 10,
-              margin: 10
-            }}
+            style={styles.touchableHigh}
             onPress={() => ScrollToThisThing(firstDrinks)}>
-            <Text
-              style={{ color: 'white' }}
-            > Bebidas </Text>
+            <Text style={{color: 'white'}}> Bebidas </Text>
           </TouchableHighlight>
           <TouchableHighlight
-            style={{
-              flex: 1,
-              justifyContent: 'center',
-              alignItems: 'center',
-              backgroundColor: '#6200ee',
-              borderRadius: 10,
-              margin: 10
-            }}
+            style={styles.touchableHigh}
             onPress={() => ScrollToThisThing(firstDessert)}>
-            <Text
-              style={{ color: 'white' }}
-            > Sobremesas </Text>
+            <Text style={{color: 'white'}}> Sobremesas </Text>
           </TouchableHighlight>
         </View>
 
-        <View style={{ flex: 5 }}>
+        <View style={{flex: 5}}>
           <FlatList
             data={newImmutableArray}
-            getItemLayout={(data, index) => ({ length: height / 4, offset: (height / 4) * index, index })}
+            getItemLayout={(data, index) => ({
+              length: height / 4,
+              offset: (height / 4) * index,
+              index,
+            })}
             ref={flatListRef}
-            renderItem={({ item, index }) => renderItem({ item, index })}
+            renderItem={({item, index}) => renderItem({item, index})}
             keyExtractor={(item, index) => `list-item-${index}`}
-
             ListEmptyComponent={
               <View style={styles.container}>
                 <ActivityIndicator size="large" color="#0000ff" />
@@ -229,7 +209,6 @@ const Catalog = (props) => {
             }
           />
         </View>
-
       </View>
       <ProductModal
         modalVisible={modalVisible}
@@ -242,9 +221,9 @@ const Catalog = (props) => {
   );
 };
 
-const ViewWithText = ({ flex, margin, color, fontSize, fontStyle, text }) => {
+const ViewWithText = ({flex, margin, color, fontSize, fontStyle, text}) => {
   return (
-    <View style={{ flex: flex, margin: margin }}>
+    <View style={{flex: flex, margin: margin}}>
       <Text
         numberOfLines={3}
         ellipsizeMode={'tail'}
@@ -258,6 +237,7 @@ const ViewWithText = ({ flex, margin, color, fontSize, fontStyle, text }) => {
     </View>
   );
 };
+
 const styles = StyleSheet.create({
   cardContainer: {
     height: height / 4,
@@ -294,13 +274,23 @@ const styles = StyleSheet.create({
   header: {
     fontSize: 32,
   },
+  touchableHigh: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#6200ee',
+    borderRadius: 10,
+    margin: 10,
+  },
 });
+
 const mapStateToProps = (state) => {
   return {
     items: state.cart.items,
     total: state.cart.total,
   };
 };
+
 const mapDispatchToProps = (dispatch) => {
   return {
     addToCart: (_id) => {

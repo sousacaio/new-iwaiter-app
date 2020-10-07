@@ -1,38 +1,31 @@
-/* eslint-disable */
-import React, { useEffect, useState, useCallback } from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   View,
   Text,
   FlatList,
-  Image,
   Dimensions,
-  Modal,
-  TouchableHighlight,
   TouchableOpacity,
-  Button,
-  Alert,
   StyleSheet,
-  ScrollView,
 } from 'react-native';
-import { useSelector, useDispatch, connect } from 'react-redux';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useNavigation } from '@react-navigation/native';
+import {useSelector, useDispatch, connect} from 'react-redux';
+import {SafeAreaView} from 'react-native-safe-area-context';
+import {useNavigation} from '@react-navigation/native';
 import {
   removeItem,
   clearCart,
   storeOrderedItems,
-  finishOrder
+  finishOrder,
 } from './../actions/cartActions';
 
 import AsyncStorage from '@react-native-community/async-storage';
-import { renderProducts } from '../components/Cart/RenderProducts';
+import {renderProducts} from '../components/Cart/RenderProducts';
 import CheckoutModal from '../components/Cart/CheckoutModal';
 import MyOrdersModal from '../components/Cart/MyOrdersModal';
 import PaymentModal from '../components/Cart/PaymentModal';
-import HasOrderedArea from './Cart/HasOrderedArea'
-import { useFocusEffect } from '@react-navigation/native';
+import HasOrderedArea from './Cart/HasOrderedArea';
+import NoOrdersYetArea from './Cart/NoOrdersYetArea';
 
-const { width, height } = Dimensions.get('screen');
+const {height} = Dimensions.get('screen');
 const Cart = (props) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [visibilityMyOrders, setVisibilityMyOrders] = useState(false);
@@ -76,36 +69,35 @@ const Cart = (props) => {
   };
   useEffect(() => {
     loadAsyncStorageData();
-  }, [modalVisible, visibilityMyOrders]);
-  useEffect(() => { }, [items]);
-
+  }, [visibilityMyOrders,modalVisible]);
+ 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <View style={{ flex: 1 }}>
-        <View style={{ flex: 4 }}>
+    <SafeAreaView style={{flex: 1}}>
+      <View style={{flex: 1}}>
+        <View style={{flex: 4}}>
           <TouchableOpacity
             style={styles.cleanCartButton}
             onPress={() => {
               clearTheCart();
             }}>
-            <Text style={{ color: 'white' }}>Limpar carrinho</Text>
+            <Text style={{color: 'white'}}>Limpar carrinho</Text>
           </TouchableOpacity>
-          <SafeAreaView style={{ flex: 1 }}>
+          <SafeAreaView style={{flex: 1}}>
             {items.length > 0 ? (
               <FlatList
                 data={items}
-                renderItem={({ item, index }) =>
-                  renderProducts({ item, index, removeCartItem })
+                renderItem={({item, index}) =>
+                  renderProducts({item, index, removeCartItem})
                 }
-                keyExtractor={(item, index) => `list-item-${index}`}
+                keyExtractor={(item, index) => `list-item-${item._id}`}
                 ListEmptyComponent={<EmptyCart />}
               />
             ) : (
-                <EmptyCart />
-              )}
+              <EmptyCart />
+            )}
           </SafeAreaView>
         </View>
-        <View style={{ flex: 2 }}>
+        <View style={{flex: 2}}>
           {isFirstOrder === 'false' ? (
             <HasOrderedArea
               total={total}
@@ -119,15 +111,14 @@ const Cart = (props) => {
               clearTheCart={clearTheCart}
             />
           ) : (
-              <NoOrdersYetArea
-                totalCart={totalCart}
-                total={total}
-                setModalVisible={setModalVisible}
-                clearTheCart={clearTheCart}
-                finishTheOrder={finishTheOrder}
-
-              />
-            )}
+            <NoOrdersYetArea
+              totalCart={totalCart}
+              total={total}
+              setModalVisible={setModalVisible}
+              clearTheCart={clearTheCart}
+              finishTheOrder={finishTheOrder}
+            />
+          )}
           <CheckoutModal
             items={items}
             total={total}
@@ -152,50 +143,6 @@ const Cart = (props) => {
         </View>
       </View>
     </SafeAreaView>
-  );
-};
-
-const NoOrdersYetArea = (props) => {
-  const navigation = useNavigation();
-  async function deleteCredentials() {
-    await AsyncStorage.removeItem('order_id');
-    await AsyncStorage.removeItem('id_establishment');
-    await AsyncStorage.removeItem('id_point');
-    props.clearTheCart()
-    props.finishTheOrder()
-    navigation.reset({
-      routes: [{ name: 'Home' }]
-    })
-  }
-  return (
-    <View style={styles.noOrdersYetContainer}>
-      <View style={{ flex: 2 }}>
-        {props.total === 0 ? (
-          <View style={styles.noOrdersYetView}>
-            <Text style={{ color: 'white' }}>Você ainda não fez um pedido!</Text>
-          </View>
-        ) : (
-            <TouchableOpacity
-              style={styles.noOrdersYetButton}
-              onPress={() => {
-                props.setModalVisible(true);
-              }}>
-              <Text style={{ color: '#6200ee' }}>
-                Checkout( R${props.totalCart})
-            </Text>
-            </TouchableOpacity>
-          )}
-      </View>
-      <View style={{ flex: 1 }}>
-        <TouchableOpacity
-          style={styles.noOrdersYetButton}
-          onPress={() => {
-            deleteCredentials();
-          }}>
-          <Text style={{ color: '#6200ee' }}>Sair</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
   );
 };
 
