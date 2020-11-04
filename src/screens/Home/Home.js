@@ -13,14 +13,12 @@ const Home = (props) => {
   async function checkCredentials() {
     const est = await AsyncStorage.getItem('id_establishment');
     const point = await AsyncStorage.getItem('id_point');
-    if (est && point) {
-      navigation.navigate('Comanda', {
-        screen: 'Scan',
-        params: {
-          id_establishment: est,
-          id_point: point,
-        },
-      });
+    const email = await AsyncStorage.getItem('email');
+    const password = await AsyncStorage.getItem('password');
+    if (est && point && email && password) {
+      console.log('taqui')
+      //manda pro catalogo aberto
+      navigation.navigate('Comanda', { screen: 'Scan', params: { id_establishment: est, id_point: point, }, });
     }
   }
 
@@ -49,7 +47,7 @@ const Home = (props) => {
           data={estInfo}
           renderItem={(item) => {
             return (
-              <TouchableOpacity onPress={()=>navigation.navigate('DetailEstablishment',{item:item.item})}>
+              <TouchableOpacity onPress={() => navigation.navigate('DetailEstablishment', { item: item.item })}>
                 <RenderEstablishments name={item.item.name} />
               </TouchableOpacity>)
           }}

@@ -85,7 +85,7 @@ const HistoryItem = ({
           <Text>{name}</Text>
           <Text>{city}</Text>
           <Text>
-            {street},{number}
+            {number}
           </Text>
         </View>
       </View>

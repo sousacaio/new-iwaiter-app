@@ -1,5 +1,5 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import React, {useEffect, useState, useRef} from 'react';
+/* eslint-disable */
+import React, { useEffect, useState, useRef } from 'react';
 import {
   Text,
   View,
@@ -12,24 +12,25 @@ import {
   Dimensions,
   ToastAndroid,
 } from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
-import {connect} from 'react-redux';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { connect } from 'react-redux';
 import Tags from '../../components/Tags';
 import ProductModal from '../../components/Catalog/ProductModal';
-const {height} = Dimensions.get('screen');
-import {fetchCatalog, addToCart} from '../../actions/cartActions';
-import {API_URL} from '../../../env';
-import {openCatalog} from '../../utils/catalog/catalog';
+const { height } = Dimensions.get('screen');
+import { fetchCatalog, addToCart } from '../../actions/cartActions';
+import { API_URL } from '../../../env';
+import { openCatalog } from '../../utils/catalog/catalog';
+import { useNavigation } from '@react-navigation/native';
 
 const Catalog = (props) => {
   const {
     route: {
       params: {
-        data: {id_point, id_establishment},
+        data: { id_point, id_establishment },
       },
     },
   } = props;
-
+  const navigation = useNavigation()
   const [products, setProducts] = useState([]);
   const [dataToPutOnModal, setDataToPutOnModal] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
@@ -42,26 +43,38 @@ const Catalog = (props) => {
   const catchDataToPutOnModal = (data) => {
     setDataToPutOnModal(data);
   };
-  async function fetchProducts() {
-    const result = await openCatalog(id_establishment, id_point);
-    const {message, catalog} = result;
-    ToastAndroid.show(message, ToastAndroid.LONG, ToastAndroid.BOTTOM);
-    setProducts(catalog);
-    sendToReducer(catalog);
-  }
+
 
   useEffect(() => {
-    fetchProducts();
+
+    async function fetchProducts() {
+      try {
+        const result = await openCatalog(id_establishment, id_point);
+        const { message, catalog, error1 } = result;
+        ToastAndroid.show(message, ToastAndroid.LONG, ToastAndroid.BOTTOM);
+        if (catalog) {
+          setProducts(catalog);
+          sendToReducer(catalog);
+        }
+        if (error1) {
+          ToastAndroid.show(message, ToastAndroid.LONG, ToastAndroid.BOTTOM);
+        }
+      } catch (error) {
+        ToastAndroid.show(message, ToastAndroid.LONG, ToastAndroid.BOTTOM);
+
+      }
+    }
+    fetchProducts()
   }, []);
 
   const flatListRef = useRef();
   function ScrollToThisThing(index) {
     console.log(index);
-    flatListRef.current.scrollToIndex({index: index, animated: true});
+    flatListRef.current.scrollToIndex({ index: index, animated: true });
   }
 
-  function renderItem({item, index}) {
-    const {value} = item;
+  function renderItem({ item, index }) {
+    const { value } = item;
     const newValue = parseFloat(value).toFixed(2);
 
     let catName;
@@ -92,12 +105,12 @@ const Catalog = (props) => {
             <Text style={styles.header}>{catName}</Text>
           </View>
         ) : (
-          <View />
-        )}
+            <View />
+          )}
 
         <TouchableOpacity
           key={index}
-          style={{margin: 1}}
+          style={{ margin: 1 }}
           onPress={() => {
             setModalVisible(true);
             catchDataToPutOnModal(item);
@@ -116,7 +129,7 @@ const Catalog = (props) => {
               />
             </View>
             <View style={styles.dataContainer}>
-              <View style={{flex: 2}}>
+              <View style={{ flex: 2 }}>
                 <ViewWithText
                   flex={1}
                   margin={10}
@@ -166,8 +179,8 @@ const Catalog = (props) => {
     (x) => x.category === 'sobremesas',
   );
   return (
-    <SafeAreaView style={{flex: 1}}>
-      <View style={{flex: 1}}>
+    <SafeAreaView style={{ flex: 1 }}>
+      <View style={{ flex: 1 }}>
         <View
           style={{
             flex: 1,
@@ -177,21 +190,21 @@ const Catalog = (props) => {
           <TouchableHighlight
             style={styles.touchableHigh}
             onPress={() => ScrollToThisThing(firstFood)}>
-            <Text style={{color: 'white'}}> Comidas </Text>
+            <Text style={{ color: 'white' }}> Comidas </Text>
           </TouchableHighlight>
           <TouchableHighlight
             style={styles.touchableHigh}
             onPress={() => ScrollToThisThing(firstDrinks)}>
-            <Text style={{color: 'white'}}> Bebidas </Text>
+            <Text style={{ color: 'white' }}> Bebidas </Text>
           </TouchableHighlight>
           <TouchableHighlight
             style={styles.touchableHigh}
             onPress={() => ScrollToThisThing(firstDessert)}>
-            <Text style={{color: 'white'}}> Sobremesas </Text>
+            <Text style={{ color: 'white' }}> Sobremesas </Text>
           </TouchableHighlight>
         </View>
 
-        <View style={{flex: 5}}>
+        <View style={{ flex: 5 }}>
           <FlatList
             data={newImmutableArray}
             getItemLayout={(data, index) => ({
@@ -200,7 +213,7 @@ const Catalog = (props) => {
               index,
             })}
             ref={flatListRef}
-            renderItem={({item, index}) => renderItem({item, index})}
+            renderItem={({ item, index }) => renderItem({ item, index })}
             keyExtractor={(item, index) => `list-item-${index}`}
             ListEmptyComponent={
               <View style={styles.container}>
@@ -221,9 +234,9 @@ const Catalog = (props) => {
   );
 };
 
-const ViewWithText = ({flex, margin, color, fontSize, fontStyle, text}) => {
+const ViewWithText = ({ flex, margin, color, fontSize, fontStyle, text }) => {
   return (
-    <View style={{flex: flex, margin: margin}}>
+    <View style={{ flex: flex, margin: margin }}>
       <Text
         numberOfLines={3}
         ellipsizeMode={'tail'}

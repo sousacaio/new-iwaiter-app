@@ -8,7 +8,7 @@ import DetailEstablishment from '../screens/DetailEstablishment/DetailEstablishm
 import Acount from '../screens/Acount/Acount';
 import Login from '../screens/Login';
 import SignUp from '../screens/SignUp';
-import Scan from '../screens/Scan';
+import Scan from '../screens/Scan/Scan';
 import Catalog from '../screens/Catalog/Catalog';
 import Cart from '../screens/Cart';
 import History from '../screens/History/History';

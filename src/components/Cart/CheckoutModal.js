@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useEffect, useState } from 'react';
 import {
   Text,
@@ -87,6 +88,7 @@ const CheckoutModal = ({
           ToastAndroid.LONG,
           ToastAndroid.BOTTOM,
         );
+        clearTheCart();
       } else {
         ToastAndroid.show(message, ToastAndroid.LONG, ToastAndroid.BOTTOM);
       }

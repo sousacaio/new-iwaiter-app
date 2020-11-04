@@ -11,11 +11,21 @@ export const updateUserAccount = async (type, data, id) => {
         });
         const { status, data: { message, success, data: newData } } = response;
         if (status === 200) {
-            await AsyncStorage.setItem(type, data);
+            await AsyncStorage.setItem(type, data.toString());
             return { success, newData, message }
         } else {
             return { success: false, newData: [], message: 'Houve um erro na requisição.Por favor,tente mais tarde.Erro 1' }
         }
+    } catch (error) {
+        return { success: false, newData: [], message: 'Houve um erro na requisição.Por favor,tente mais tarde.Erro 2', error }
+    }
+}
+
+export const getUserLastOrders = async (id) => {
+    try {
+        console.log(id)
+        const response = await api.put(`customers/${id}/update`, { data: data, type, });
+
     } catch (error) {
         return { success: false, newData: [], message: 'Houve um erro na requisição.Por favor,tente mais tarde.Erro 2', error }
     }

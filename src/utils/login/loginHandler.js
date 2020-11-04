@@ -129,6 +129,7 @@ const normalLogin = async (email, password) => {
       const { _id, name, email: newEmail, photo } = customer;
       await AsyncStorage.setItem('email', newEmail);
       await AsyncStorage.setItem('name', name);
+      await AsyncStorage.setItem('password', password);
       if (photo) {
         AsyncStorage.setItem('photo', photo);
       }
