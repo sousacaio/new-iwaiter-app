@@ -8,16 +8,16 @@ import {
   TextInput,
   TouchableOpacity,
 } from 'react-native';
-const {width, height} = Dimensions.get('window');
-import {connect, useSelector, useDispatch} from 'react-redux';
-import {Formik} from 'formik';
+const { width, height } = Dimensions.get('window');
+import { connect, useSelector, useDispatch } from 'react-redux';
+import { Formik } from 'formik';
 import * as Yup from 'yup';
 import ErrorMessage from '../../components/ErrorMessage';
-import {storeUserInfo} from '../../actions/customerActions';
-import {showToastWithGravity} from '../../components/ToastMessages';
-import {updateUserAccount} from '../../utils/user/account';
+import { storeUserInfo } from '../../actions/customerActions';
+import { showToastWithGravity } from '../../components/ToastMessages';
+import { updateUserAccount } from '../../utils/user/account';
 
-const ChangeEmailModal = ({visibilityEmailModal, setVisibilityEmailModal}) => {
+const ChangeEmailModal = ({ visibilityEmailModal, setVisibilityEmailModal }) => {
   const id = useSelector((state) => state.customer.id);
   const dispatch = useDispatch();
   const storeUserInfoInRedux = (data) => {
@@ -25,6 +25,7 @@ const ChangeEmailModal = ({visibilityEmailModal, setVisibilityEmailModal}) => {
   };
   const updateUserInfo = async (data) => {
     storeUserInfoInRedux({
+      lastOrders: [],
       name: data.name,
       email: data.email,
       id: data._id,
@@ -34,7 +35,7 @@ const ChangeEmailModal = ({visibilityEmailModal, setVisibilityEmailModal}) => {
   };
   const updateEmail = async (data) => {
     const result = await updateUserAccount('email', data.email, id);
-    const {success, newData, message} = result;
+    const { success, newData, message } = result;
     if (success) {
       updateUserInfo(newData);
     }
@@ -57,7 +58,7 @@ const ChangeEmailModal = ({visibilityEmailModal, setVisibilityEmailModal}) => {
         <View style={styles.contentContainer}>
           <View style={styles.headerContainer}>
             <Formik
-              initialValues={{email: ''}}
+              initialValues={{ email: '' }}
               onSubmit={(values) => {
                 updateEmail(values);
               }}
@@ -71,42 +72,42 @@ const ChangeEmailModal = ({visibilityEmailModal, setVisibilityEmailModal}) => {
                 touched,
                 handleBlur,
               }) => (
-                <View style={styles.contentContainer}>
-                  <View style={styles.headerContainer}>
-                    <Text>Email atual: {useremail}</Text>
+                  <View style={styles.contentContainer}>
+                    <View style={styles.headerContainer}>
+                      <Text>Email atual: {useremail}</Text>
+                    </View>
+                    <View style={styles.emailView}>
+                      <TextInput
+                        style={styles.textInputStyle}
+                        value={values.email}
+                        onChangeText={handleChange('email')}
+                        placeholder="Novo email"
+                        autoCapitalize="none"
+                        onBlur={handleBlur('email')}
+                      />
+                      <ErrorMessage errorValue={touched.email && errors.email} />
+                    </View>
+                    <View style={{ flex: 1, flexDirection: 'row' }}>
+                      <TouchableOpacity
+                        style={[
+                          styles.buttonStyle,
+                          {
+                            backgroundColor: !isValid ? 'grey' : '#6200ee',
+                          },
+                        ]}
+                        onPress={handleSubmit}>
+                        <Text style={{ color: 'white' }}>Atualizar</Text>
+                      </TouchableOpacity>
+                      <TouchableOpacity
+                        style={styles.buttonStyle}
+                        onPress={() =>
+                          setVisibilityEmailModal(!visibilityEmailModal)
+                        }>
+                        <Text style={{ color: 'white' }}>Voltar</Text>
+                      </TouchableOpacity>
+                    </View>
                   </View>
-                  <View style={styles.emailView}>
-                    <TextInput
-                      style={styles.textInputStyle}
-                      value={values.email}
-                      onChangeText={handleChange('email')}
-                      placeholder="Novo email"
-                      autoCapitalize="none"
-                      onBlur={handleBlur('email')}
-                    />
-                    <ErrorMessage errorValue={touched.email && errors.email} />
-                  </View>
-                  <View style={{flex: 1, flexDirection: 'row'}}>
-                    <TouchableOpacity
-                      style={[
-                        styles.buttonStyle,
-                        {
-                          backgroundColor: !isValid ? 'grey' : '#6200ee',
-                        },
-                      ]}
-                      onPress={handleSubmit}>
-                      <Text style={{color: 'white'}}>Atualizar</Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                      style={styles.buttonStyle}
-                      onPress={() =>
-                        setVisibilityEmailModal(!visibilityEmailModal)
-                      }>
-                      <Text style={{color: 'white'}}>Voltar</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
-              )}
+                )}
             </Formik>
           </View>
         </View>

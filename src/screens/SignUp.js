@@ -1,4 +1,5 @@
-import React, {useEffect} from 'react';
+/* eslint-disable */
+import React, { useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,18 +7,18 @@ import {
   TouchableOpacity,
   ToastAndroid,
 } from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
-import {useAuth} from '../services/authContext';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { useAuth } from '../services/authContext';
 import api from '../services/axios';
-import {Formik} from 'formik';
+import { Formik } from 'formik';
 import * as Yup from 'yup';
 import ErrorMessage from '../components/ErrorMessage';
-import {ScrollView} from 'react-native-gesture-handler';
-import {connect} from 'react-redux';
-import {handleLogin} from '../utils/login/loginHandler';
-import {useNavigation} from '@react-navigation/native';
+import { ScrollView } from 'react-native-gesture-handler';
+import { connect } from 'react-redux';
+import { handleLogin } from '../utils/login/loginHandler';
+import { useNavigation } from '@react-navigation/native';
 const SignUp = () => {
-  const {login} = useAuth();
+  const { login } = useAuth();
   const navigation = useNavigation();
 
   const loginAndGoHome = () => {
@@ -52,27 +53,27 @@ const SignUp = () => {
   const register = async (values) => {
     try {
       const res = await api.post('auth/customers/create', values);
-      const {data} = res;
-      const {
-        message,
-        success,
-        data: {email, password},
-      } = data;
+      // console.log(JSON.stringify(res, null, '\t'));
+      const { data: { response: { message, success, data: data2 } } } = res;
+      console.log(success)
       if (success === true) {
         ToastAndroid.show(message, ToastAndroid.LONG, ToastAndroid.BOTTOM);
-        const result = await handleLogin(null, null, email, password, null);
+
+        const result = await handleLogin(null, null, data2.email, data2.password, null);
+
         if (result.type === 'NormalLogin') {
           loginAndGoHome();
         }
       } else {
+        console.log('success ta false')
         ToastAndroid.show(message, ToastAndroid.LONG, ToastAndroid.BOTTOM);
       }
     } catch (error) {
-      ToastAndroid.show(error, ToastAndroid.LONG, ToastAndroid.BOTTOM);
+      console.log(error)
     }
   };
   return (
-    <SafeAreaView style={{flex: 1}}>
+    <SafeAreaView style={{ flex: 1 }}>
       <Formik
         initialValues={{
           email: '',
@@ -93,91 +94,91 @@ const SignUp = () => {
           touched,
           handleBlur,
         }) => (
-          <ScrollView style={{flex: 1}}>
-            <View
-              style={{
-                flex: 1,
-                alignContent: 'center',
-                justifyContent: 'center',
-              }}>
-              <TextInput
+            <ScrollView style={{ flex: 1 }}>
+              <View
                 style={{
-                  margin: 15,
-                  borderBottomColor: '#6200ee',
-                  borderBottomWidth: 1,
-                }}
-                value={values.email}
-                onChangeText={handleChange('email')}
-                placeholder="Email"
-                autoCapitalize="none"
-                onBlur={handleBlur('email')}
-              />
-              <ErrorMessage errorValue={touched.email && errors.email} />
-              <TextInput
-                style={{
-                  margin: 15,
-                  borderBottomColor: '#6200ee',
-                  borderBottomWidth: 1,
-                }}
-                value={values.password}
-                onChangeText={handleChange('password')}
-                placeholder="Senha"
-                autoCapitalize="none"
-                onBlur={handleBlur('password')}
-                secureTextEntry={true}
-              />
-              <ErrorMessage errorValue={touched.password && errors.password} />
-              <TextInput
-                style={{
-                  margin: 15,
-                  borderBottomColor: '#6200ee',
-                  borderBottomWidth: 1,
-                }}
-                value={values.passwordConfirmation}
-                onChangeText={handleChange('passwordConfirmation')}
-                placeholder="Confirmação de senha"
-                autoCapitalize="none"
-                onBlur={handleBlur('passwordConfirmation')}
-                secureTextEntry={true}
-              />
-              <ErrorMessage
-                errorValue={
-                  touched.passwordConfirmation && errors.passwordConfirmation
-                }
-              />
-              <TextInput
-                style={{
-                  margin: 15,
-                  borderBottomColor: '#6200ee',
-                  borderBottomWidth: 1,
-                }}
-                value={values.name}
-                onChangeText={handleChange('name')}
-                placeholder="Nome"
-                autoCapitalize="none"
-                onBlur={handleBlur('name')}
-              />
-              <ErrorMessage errorValue={touched.name && errors.name} />
-              <TouchableOpacity
-                style={{
-                  height: 60,
-                  marginTop: 10,
-                  borderWidth: 1,
-                  alignItems: 'center',
+                  flex: 1,
+                  alignContent: 'center',
                   justifyContent: 'center',
-                  backgroundColor: !isValid ? 'grey' : '#6200ee',
-                  borderRadius: 5,
-                  borderColor: 'white',
-                  margin: 15,
-                }}
-                onPress={handleSubmit}
+                }}>
+                <TextInput
+                  style={{
+                    margin: 15,
+                    borderBottomColor: '#6200ee',
+                    borderBottomWidth: 1,
+                  }}
+                  value={values.email}
+                  onChangeText={handleChange('email')}
+                  placeholder="Email"
+                  autoCapitalize="none"
+                  onBlur={handleBlur('email')}
+                />
+                <ErrorMessage errorValue={touched.email && errors.email} />
+                <TextInput
+                  style={{
+                    margin: 15,
+                    borderBottomColor: '#6200ee',
+                    borderBottomWidth: 1,
+                  }}
+                  value={values.password}
+                  onChangeText={handleChange('password')}
+                  placeholder="Senha"
+                  autoCapitalize="none"
+                  onBlur={handleBlur('password')}
+                  secureTextEntry={true}
+                />
+                <ErrorMessage errorValue={touched.password && errors.password} />
+                <TextInput
+                  style={{
+                    margin: 15,
+                    borderBottomColor: '#6200ee',
+                    borderBottomWidth: 1,
+                  }}
+                  value={values.passwordConfirmation}
+                  onChangeText={handleChange('passwordConfirmation')}
+                  placeholder="Confirmação de senha"
+                  autoCapitalize="none"
+                  onBlur={handleBlur('passwordConfirmation')}
+                  secureTextEntry={true}
+                />
+                <ErrorMessage
+                  errorValue={
+                    touched.passwordConfirmation && errors.passwordConfirmation
+                  }
+                />
+                <TextInput
+                  style={{
+                    margin: 15,
+                    borderBottomColor: '#6200ee',
+                    borderBottomWidth: 1,
+                  }}
+                  value={values.name}
+                  onChangeText={handleChange('name')}
+                  placeholder="Nome"
+                  autoCapitalize="none"
+                  onBlur={handleBlur('name')}
+                />
+                <ErrorMessage errorValue={touched.name && errors.name} />
+                <TouchableOpacity
+                  style={{
+                    height: 60,
+                    marginTop: 10,
+                    borderWidth: 1,
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: !isValid ? 'grey' : '#6200ee',
+                    borderRadius: 5,
+                    borderColor: 'white',
+                    margin: 15,
+                  }}
+                  onPress={handleSubmit}
                 //disabled={!isValid || isSubmitting}
-              >
-                <Text style={{color: 'white'}}>Registrar</Text>
-              </TouchableOpacity>
-            </View>
-          </ScrollView>
-        )}
+                >
+                  <Text style={{ color: 'white' }}>Registrar</Text>
+                </TouchableOpacity>
+              </View>
+            </ScrollView>
+          )}
       </Formik>
     </SafeAreaView>
   );

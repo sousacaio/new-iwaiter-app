@@ -8,14 +8,14 @@ import {
   Alert,
   ToastAndroid,
 } from 'react-native';
-const {width, height} = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 import IconButton from '../IconButton';
-import {connect, useSelector, useDispatch} from 'react-redux';
+import { connect, useSelector, useDispatch } from 'react-redux';
 import api from '../../services/axios';
 import AsyncStorage from '@react-native-community/async-storage';
-import {useNavigation} from '@react-navigation/native';
-import {finishOrder} from '../../actions/cartActions';
-const PaymentModal = ({visibilityPaymentModal, setVisibilityPaymentModal}) => {
+import { useNavigation } from '@react-navigation/native';
+import { finishOrder } from '../../actions/cartActions';
+const PaymentModal = ({ visibilityPaymentModal, setVisibilityPaymentModal }) => {
   const orderIdRedux = useSelector((state) => state.cart.orderId);
   const cart = useSelector((state) => state.cart);
   const dispatch = useDispatch();
@@ -34,42 +34,62 @@ const PaymentModal = ({visibilityPaymentModal, setVisibilityPaymentModal}) => {
   const endOrder = async (paymentMethod) => {
     console.log('idorder:' + orderIdRedux);
     console.log('paymentMethod:' + paymentMethod);
-    const res = await api.post(
-      `orders/endOrder/${orderIdRedux}/${paymentMethod}`,
-    );
-    const {
-      data: {response, status, message},
-    } = res;
-    if (status === 200) {
+    try {
+      const res = await api.post(
+        `orders/endOrder/${orderIdRedux}/${paymentMethod}`,
+      );
+      console.log(res)
       const {
-        data: {isClosed},
-      } = response;
-      if (isClosed === true) {
-        Alert.alert(
-          'Pagamento',
-          message,
-          [
-            {
-              text: 'OK',
-              onPress: () => {
-                setVisibilityPaymentModal(!visibilityPaymentModal);
-                deleteCredentials();
-                navigation.navigate('Scan');
+        data: { response, status, message },
+      } = res;
+      if (status === 200) {
+        const {
+          data: { isClosed },
+        } = response;
+        if (isClosed === true) {
+          Alert.alert(
+            'Pagamento',
+            message,
+            [
+              {
+                text: 'OK',
+                onPress: () => {
+                  setVisibilityPaymentModal(!visibilityPaymentModal);
+                  deleteCredentials();
+                  navigation.navigate('Scan');
+                },
               },
-            },
-          ],
-          {cancelable: false},
-        );
+            ],
+            { cancelable: false },
+          );
+        } else {
+          ToastAndroid.show(
+            'Seu pedido para fechamento de comanda não foi processado,tente novamente',
+            ToastAndroid.LONG,
+            ToastAndroid.BOTTOM,
+          );
+        }
       } else {
-        ToastAndroid.show(
-          'Seu pedido para fechamento de comanda não foi processado,tente novamente',
-          ToastAndroid.LONG,
-          ToastAndroid.BOTTOM,
-        );
+        ToastAndroid.show(message, ToastAndroid.LONG, ToastAndroid.BOTTOM);
       }
-    } else {
-      ToastAndroid.show(message, ToastAndroid.LONG, ToastAndroid.BOTTOM);
+    } catch (error) {
+      Alert.alert(
+        'Pagamento',
+        'Por favor,dirija-se ao caixa',
+        [
+          {
+            text: 'OK',
+            onPress: () => {
+              setVisibilityPaymentModal(!visibilityPaymentModal);
+              deleteCredentials();
+              navigation.navigate('Scan');
+            },
+          },
+        ],
+        { cancelable: false },
+      );
     }
+
   };
 
   return (
@@ -88,7 +108,7 @@ const PaymentModal = ({visibilityPaymentModal, setVisibilityPaymentModal}) => {
                 Método de pagamento:
               </Text>
             </View>
-            <View style={{flex: 3}}>
+            <View style={{ flex: 3 }}>
               <View
                 style={{
                   flex: 1,

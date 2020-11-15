@@ -1,4 +1,5 @@
-import React, {useState} from 'react';
+/* eslint-disable */
+import React, { useState, useCallback, useEffect } from 'react';
 import {
   Dimensions,
   View,
@@ -6,35 +7,88 @@ import {
   StyleSheet,
   TouchableOpacity,
 } from 'react-native';
-import {SafeAreaView} from 'react-native-safe-area-context';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-community/async-storage';
 import MailIcon from 'react-native-vector-icons/Fontisto';
 import Pass from 'react-native-vector-icons/Entypo';
 import Edit from 'react-native-vector-icons/Feather';
 import Name from 'react-native-vector-icons/AntDesign';
-import {connect, useSelector} from 'react-redux';
-import {useAuth} from '../../services/authContext';
-const {width} = Dimensions.get('window');
+import { connect, useSelector, useDispatch } from 'react-redux';
+import { useAuth } from '../../services/authContext';
 import ChangeNameModal from './ChangeNameModal';
 import ChangeEmailModal from './ChangeEmailModal';
 import ChangePassModal from './ChangePassModal';
+import { useFocusEffect } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
+import { storeUserInfo } from '../../actions/customerActions';
+import api from '../../services/axios'
+
+
+const { width } = Dimensions.get('window');
+
 const Acount = () => {
   const [visibilityNameModal, setVisibilityNameModal] = useState(false);
   const [visibilityEmailModal, setVisibilityEmailModal] = useState(false);
   const [visibilityPassModal, setVisibilityPassModal] = useState(false);
+  const [id, setID] = useState('');
+  const dispatch = useDispatch();
+  const storeUserInfoInRedux = (data) => {
+    dispatch(storeUserInfo(data));
+  };
 
-  const {singOut} = useAuth();
+  const { singOut } = useAuth();
   const email = useSelector((state) => state.customer.email);
   const name = useSelector((state) => state.customer.name);
   const isThereAnActiveOrder = useSelector((state) => state.cart.orderId);
+  async function getInfo() {
+    //console.log(await AsyncStorage.getAllKeys())
+    let idOporra = await AsyncStorage.getItem('customer_id')
+    setID(idOporra)
+  }
+
   const handleLogout = async () => {
     await AsyncStorage.clear();
     singOut();
-  };
+  }
+  async function bringInfo() {
+    try {
+
+      let result = await api.get(`customers/info/${await AsyncStorage.getItem('customer_id')}`)
+      const { data: { data: { customers, customerOrders }, success } } = result
+      if (success === true) {
+        storeUserInfoInRedux({
+          lastOrders: customerOrders,
+          name: customers.name,
+          email: customers.email,
+          id: customers._id,
+          createdAt: customers.createdAt,
+          photo: customers.photo ? customers.name : null
+        })
+      }
+
+    } catch (error) {
+
+    }
+  }
+
+  const navigation = useNavigation();
+  useFocusEffect(
+    useCallback(() => {
+      if (navigation.isFocused()) {
+        getInfo()
+        bringInfo()
+      }
+      // navigation.addListener('focus', () => {
+      //   getInfo()
+      //   bringInfo()
+      // })
+
+    }, [navigation])
+  )
 
   return (
-    <SafeAreaView style={{flex: 1}}>
-      <View style={{flex: 1, top: 60}}>
+    <SafeAreaView style={{ flex: 1 }}>
+      <View style={{ flex: 1, top: 60 }}>
         <View style={styles.viewConfs}>
           <View>
             <Name name="profile" size={30} color="#6200ee" />
@@ -90,22 +144,22 @@ const Acount = () => {
           {isThereAnActiveOrder ? (
             <TouchableOpacity
               style={styles.logoutButton}
-              //disabled={!isValid || isSubmitting}
+            //disabled={!isValid || isSubmitting}
             >
-              <Text style={{color: 'white'}}>
+              <Text style={{ color: 'white' }}>
                 {' '}
                 Você não pode deslogar com uma comanda ativa!{' '}
               </Text>
             </TouchableOpacity>
           ) : (
-            <TouchableOpacity
-              style={styles.logoutButton}
-              onPress={() => handleLogout()}
+              <TouchableOpacity
+                style={styles.logoutButton}
+                onPress={() => handleLogout()}
               //disabled={!isValid || isSubmitting}
-            >
-              <Text style={{color: 'white'}}>Logout</Text>
-            </TouchableOpacity>
-          )}
+              >
+                <Text style={{ color: 'white' }}>Logout</Text>
+              </TouchableOpacity>
+            )}
         </View>
       </View>
     </SafeAreaView>

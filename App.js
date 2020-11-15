@@ -17,6 +17,7 @@ import rootReducer from './src/reducers/index';
 const store = createStore(rootReducer);
 
 const App = () => {
+  console.disableYellowBox = true;
   return (
     <AuthProvider>
       <Provider store={store}>
